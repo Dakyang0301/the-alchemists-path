@@ -1,0 +1,580 @@
+<!-- ================================================================
+  COMPONENT 2 — THE ALCHEMIST'S PATH
+  INTERACTIVE ALCHEMICAL TRANSFORMATION ROADMAP
+  ─────────────────────────────────────────────────────────────────
+  WHERE TO PASTE: Student Dashboard page > Raw HTML element
+  DEPENDENCIES: Component 1 must be loaded in the page <head>.
+  If not, un-comment the font link and :root block below.
+
+  HOW IT WORKS:
+  · Progress is stored in browser localStorage (key: alch_path_v1)
+  · Each stage has a "Complete Assessment" button
+  · Completing a stage triggers an alchemical glow-reveal on the next
+  · Integrates with the Assessment Engine (Component 3) via the
+    alchRoadmap.completeLevel(id) function — call it from your quiz
+  · Optional webhook fires on each level completion
+  ================================================================ -->
+
+<!-- Un-comment if Component 1 is NOT in the page head:
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:#D4AF37; --charcoal:#0D0D0D; --velvet:#1A1A2E; --surface:#16213E;
+    --text-main:#E8E4D8; --text-muted:#9A9080;
+    --green:#2E5339; --blue:#4DA6FF; --orange:#E8743B; --teal:#3BBFBF;
+  }
+</style>
+-->
+
+<style>
+/* ── Roadmap Layout ── */
+#alch-roadmap {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 5rem;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.rm-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.rm-header h2 {
+  font-family: 'Spectral', Georgia, serif;
+  color: #D4AF37;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.02em;
+}
+.rm-header p {
+  color: #9A9080;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+/* ── Progress Bar ── */
+.rm-progress-wrap {
+  margin-bottom: 0.4rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9A9080;
+}
+.rm-progress-track {
+  background: rgba(255,255,255,0.07);
+  border-radius: 20px;
+  height: 5px;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+.rm-progress-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #2E5339, #D4AF37, #3BBFBF);
+  transition: width 0.9s cubic-bezier(0.34, 1, 0.64, 1);
+}
+
+/* ── Vertical Track (connector line) ── */
+.rm-track {
+  position: relative;
+}
+.rm-track::before {
+  content: '';
+  position: absolute;
+  left: 29px;
+  top: 30px;
+  bottom: 30px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(212,175,55,0.08) 0%,
+    rgba(212,175,55,0.45) 25%,
+    rgba(212,175,55,0.45) 75%,
+    rgba(212,175,55,0.08) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Single Step ── */
+.rm-step {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  transition: opacity 0.4s ease;
+}
+
+/* ── Node Circle ── */
+.rm-node {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  position: relative;
+  z-index: 1;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: default;
+  user-select: none;
+}
+
+/* ── Content Card ── */
+.rm-card {
+  flex: 1;
+  background: linear-gradient(145deg, #1A1A2E 0%, #16213E 100%);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 11px;
+  padding: 1.35rem 1.6rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.35s, box-shadow 0.35s;
+}
+.rm-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--step-c, #D4AF37), transparent);
+  opacity: 0.45;
+}
+
+.rm-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.45rem;
+}
+.rm-metal {
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--step-c, #D4AF37);
+  line-height: 1;
+}
+.rm-state {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9A9080;
+}
+.rm-element-badge {
+  margin-left: auto;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--step-c, #D4AF37);
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.rm-desc {
+  font-size: 0.84rem;
+  line-height: 1.68;
+  color: #C0B8A8;
+  margin: 0 0 1rem;
+}
+
+.rm-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.rm-status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  color: #9A9080;
+  letter-spacing: 0.06em;
+}
+.rm-status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.rm-complete-btn {
+  background: var(--step-c, #D4AF37);
+  color: #0D0D0D;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.55rem 1.4rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.rm-complete-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+/* ── State Modifiers ── */
+
+/* Locked */
+.rm-step--locked .rm-card {
+  border-color: rgba(255,255,255,0.06);
+  filter: saturate(0.25);
+}
+.rm-step--locked .rm-card::before { opacity: 0; }
+.rm-step--locked .rm-node {
+  filter: grayscale(1);
+  opacity: 0.35;
+  background: rgba(30,30,40,0.8) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.rm-step--locked .rm-metal { color: #555 !important; }
+.rm-step--locked .rm-desc  { color: #444 !important; }
+
+/* Active (current stage) */
+.rm-step--active .rm-card {
+  border-color: rgba(212,175,55,0.45);
+  animation: rmCardPulse 3.5s ease-in-out infinite;
+}
+.rm-step--active .rm-node {
+  animation: rmNodePulse 2.5s ease-in-out infinite;
+}
+
+/* Completed */
+.rm-step--completed .rm-node::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 15, 5, 0.65);
+  border-radius: 50%;
+  font-size: 1rem;
+  font-style: normal;
+  color: #D4AF37;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+.rm-step--completed .rm-card {
+  border-color: rgba(46,83,57,0.5);
+}
+
+/* Unlock animation (plays once on newly revealed stage) */
+.rm-step--unlocking {
+  animation: alchUnlock 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes rmCardPulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50%       { box-shadow: 0 0 22px rgba(212,175,55,0.18); }
+}
+@keyframes rmNodePulse {
+  0%, 100% { transform: scale(1);    }
+  50%       { transform: scale(1.09); }
+}
+@keyframes alchUnlock {
+  0%   {
+    filter: grayscale(1) brightness(0.3);
+    opacity: 0.15;
+    transform: scale(0.94) translateX(-10px);
+  }
+  55%  {
+    filter: grayscale(0) brightness(1.4);
+    transform: scale(1.03) translateX(0);
+  }
+  100% {
+    filter: grayscale(0) brightness(1);
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+/* ── Dev tools panel ── */
+.rm-dev-panel {
+  margin-top: 3rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  color: #9A9080;
+}
+.rm-dev-panel strong {
+  display: block;
+  color: #D4AF37;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rm-dev-btn {
+  background: rgba(255,255,255,0.07);
+  color: #C8C0B0;
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 0.35rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.25rem;
+  transition: background 0.2s;
+}
+.rm-dev-btn:hover { background: rgba(255,255,255,0.12); }
+</style>
+
+<!-- ════════════════════════════════════════════════════════════
+     ROADMAP HTML SHELL
+     ════════════════════════════════════════════════════════════ -->
+<div id="alch-roadmap">
+
+  <div class="rm-header">
+    <h2>The Alchemical Path</h2>
+    <p>Eight stages of transformation. Complete each assessment to reveal the next.</p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="rm-progress-wrap">
+    <span id="rm-progress-text">0 of 8 Stages Complete</span>
+    <span id="rm-progress-pct">0%</span>
+  </div>
+  <div class="rm-progress-track">
+    <div class="rm-progress-fill" id="rm-fill" style="width:0%"></div>
+  </div>
+
+  <!-- Timeline (populated by JS) -->
+  <div class="rm-track" id="rm-track"></div>
+
+  <!-- DEV CONTROLS — delete this entire block before going live -->
+  <div class="rm-dev-panel" id="rm-dev">
+    <strong>Dev Controls — Remove Before Launch</strong>
+    <button class="rm-dev-btn" onclick="alchRoadmap.resetAll()">Reset All Progress</button>
+    <button class="rm-dev-btn" onclick="alchRoadmap.completeLevel(0)">Complete Stage 1</button>
+    <button class="rm-dev-btn" onclick="alchRoadmap.devUnlockAll()">Unlock All (Test View)</button>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     ROADMAP JAVASCRIPT ENGINE
+     ════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Element Data ──────────────────────────────────────────────
+     color:  primary accent for this stage
+     bg:     translucent fill for the node circle
+     glyph:  alchemical / planetary symbol
+     elem:   element archetype label
+  ── ────────────────────────────────────────────────────────── */
+  var ELEMENTS = [
+    {
+      id: 0,
+      metal: 'Tin',       state: 'Ignorance',
+      elem:  'Primordial', glyph: '☿',
+      color: '#8B8FA8',   bg: 'rgba(139,143,168,0.14)',
+      desc:  'The raw material. Unrefined ore — full of potential, blind to it. Every alchemist begins here, and that is precisely the point.'
+    },
+    {
+      id: 1,
+      metal: 'Lead',      state: 'Awareness',
+      elem:  'Shadow',     glyph: '♄',
+      color: '#7A8BA0',   bg: 'rgba(122,139,160,0.14)',
+      desc:  'The first great gift: you begin to see. Awareness is not yet wisdom — it is the candle lit in a dark room. Honour it.'
+    },
+    {
+      id: 2,
+      metal: 'Iron',      state: 'Stability',
+      elem:  'Earth · Wealth', glyph: '♂',
+      color: '#2E5339',   bg: 'rgba(46,83,57,0.22)',
+      desc:  'Your roots go deep. You have made order from chaos — a stable foundation from which true, lasting growth becomes possible.'
+    },
+    {
+      id: 3,
+      metal: 'Steel',     state: 'Security',
+      elem:  'Forged',    glyph: '⚙',
+      color: '#5A7A8C',   bg: 'rgba(90,122,140,0.18)',
+      desc:  'Iron tempered in fire. Security is not comfort — it is the deep certainty that you can handle whatever approaches you.'
+    },
+    {
+      id: 4,
+      metal: 'Copper',    state: 'Comfort',
+      elem:  'Fire · Spirit', glyph: '♀',
+      color: '#E8743B',   bg: 'rgba(232,116,59,0.16)',
+      desc:  'The warmth of what you have built. Comfort is a waypoint, not a destination — rest here, but do not settle forever.'
+    },
+    {
+      id: 5,
+      metal: 'Silver',    state: 'Independence',
+      elem:  'Air · Self', glyph: '☽',
+      color: '#4DA6FF',   bg: 'rgba(77,166,255,0.14)',
+      desc:  'You breathe free air. No longer dependent on external approval or broken systems — your authentic self begins to shine.'
+    },
+    {
+      id: 6,
+      metal: 'Gold',      state: 'Freedom',
+      elem:  'Water · Spirit', glyph: '☉',
+      color: '#D4AF37',   bg: 'rgba(212,175,55,0.16)',
+      desc:  'The Great Work, achieved. Gold is not a material state — it is a sovereign way of moving through the world with ease.'
+    },
+    {
+      id: 7,
+      metal: 'Palladium', state: 'Mastery · Giving Back',
+      elem:  'Ether',     glyph: '⊕',
+      color: '#3BBFBF',   bg: 'rgba(59,191,191,0.14)',
+      desc:  'The highest expression: you have become the well. Mastery is not hoarding — it is the overflow that nourishes others.'
+    }
+  ];
+
+  var STORAGE_KEY  = 'alch_path_v1';
+  /* Optional webhook — paste your System.io automation URL here */
+  var WEBHOOK_URL  = '';
+
+  /* ── State helpers ── */
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { completed: [], current: 0 }; }
+    catch (_) { return { completed: [], current: 0 }; }
+  }
+  function saveState(s) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (_) {}
+  }
+
+  /* ── Render ── */
+  function render() {
+    var state  = loadState();
+    var track  = document.getElementById('rm-track');
+    var fill   = document.getElementById('rm-fill');
+    var ptxt   = document.getElementById('rm-progress-text');
+    var ppct   = document.getElementById('rm-progress-pct');
+    var done   = state.completed.length;
+    var pct    = Math.round((done / ELEMENTS.length) * 100);
+
+    if (fill)  fill.style.width = pct + '%';
+    if (ptxt)  ptxt.textContent = done + ' of ' + ELEMENTS.length + ' Stages Complete';
+    if (ppct)  ppct.textContent = pct + '%';
+    if (!track) return;
+
+    track.innerHTML = '';
+
+    ELEMENTS.forEach(function (el) {
+      var isCompleted = state.completed.indexOf(el.id) !== -1;
+      var isCurrent   = el.id === state.current && !isCompleted;
+      var isLocked    = !isCompleted && el.id > state.current;
+
+      var step = document.createElement('div');
+      step.className = 'rm-step ' +
+        (isLocked ? 'rm-step--locked' : isCompleted ? 'rm-step--completed' : 'rm-step--active');
+      step.style.setProperty('--step-c', el.color);
+
+      step.innerHTML =
+        '<div class="rm-node" style="background:' + el.bg + ';border-color:' +
+          (isLocked ? 'rgba(255,255,255,0.1)' : el.color) + ';">' +
+          el.glyph +
+        '</div>' +
+        '<div class="rm-card">' +
+          '<div class="rm-meta">' +
+            '<span class="rm-metal">' + el.metal + '</span>' +
+            '<span class="rm-state">' + el.state + '</span>' +
+            '<span class="rm-element-badge">' + el.elem + '</span>' +
+          '</div>' +
+          '<p class="rm-desc">' + el.desc + '</p>' +
+          renderFooter(el, isCompleted, isCurrent, isLocked) +
+        '</div>';
+
+      track.appendChild(step);
+    });
+  }
+
+  function renderFooter(el, isCompleted, isCurrent, isLocked) {
+    if (isCompleted) {
+      return '<div class="rm-status" style="color:#2E5339;">' +
+        '<div class="rm-status-dot" style="background:#2E5339;"></div>' +
+        'Transmutation Complete' +
+      '</div>';
+    }
+    if (isLocked) {
+      return '<div class="rm-status">' +
+        '<div class="rm-status-dot"></div>' +
+        'Complete the previous stage to unlock' +
+      '</div>';
+    }
+    if (isCurrent) {
+      return '<div class="rm-status-row">' +
+        '<div class="rm-status" style="color:' + el.color + ';">' +
+          '<div class="rm-status-dot" style="background:' + el.color + ';"></div>' +
+          'Current Stage — In Progress' +
+        '</div>' +
+        '<button class="rm-complete-btn" style="background:' + el.color + ';" ' +
+          'onclick="alchRoadmap.completeLevel(' + el.id + ')">' +
+          '⚗ Complete Assessment' +
+        '</button>' +
+      '</div>';
+    }
+    return '';
+  }
+
+  /* ── Actions ── */
+  function completeLevel(id) {
+    var state = loadState();
+    if (state.completed.indexOf(id) !== -1) return; // already done
+
+    state.completed.push(id);
+    state.current = id + 1;
+    saveState(state);
+    render();
+
+    /* Animate the newly unlocked step */
+    var steps = document.querySelectorAll('#rm-track .rm-step');
+    var next  = steps[id + 1];
+    if (next) {
+      next.classList.add('rm-step--unlocking');
+      setTimeout(function () { next.classList.remove('rm-step--unlocking'); }, 900);
+      setTimeout(function () { next.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200);
+    }
+
+    /* Optional webhook */
+    if (WEBHOOK_URL) {
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event:   'level_complete',
+          levelId: id,
+          metal:   ELEMENTS[id] ? ELEMENTS[id].metal : '',
+          state:   ELEMENTS[id] ? ELEMENTS[id].state : '',
+        })
+      }).catch(function () {});
+    }
+  }
+
+  function resetAll() {
+    saveState({ completed: [], current: 0 });
+    render();
+  }
+
+  function devUnlockAll() {
+    saveState({ completed: ELEMENTS.map(function (e) { return e.id; }), current: ELEMENTS.length });
+    render();
+  }
+
+  /* Public API — called by assessment engine and dev buttons */
+  window.alchRoadmap = { completeLevel: completeLevel, resetAll: resetAll, devUnlockAll: devUnlockAll };
+
+  /* Init */
+  render();
+})();
+</script>

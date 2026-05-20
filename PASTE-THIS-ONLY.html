@@ -1,0 +1,488 @@
+<!-- FONTS + TAILWIND -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+:root {
+  --gold:#D4AF37; --gold-light:#F0D060; --gold-dim:#8B6914;
+  --charcoal:#0D0D0D; --velvet:#1A1A2E; --surface:#16213E;
+  --text-main:#E8E4D8; --text-muted:#9A9080;
+  --green:#2E5339; --blue:#4DA6FF; --orange:#E8743B; --teal:#3BBFBF;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body,html{background:#0D0D0D!important;color:#E8E4D8!important;}
+body,p,li,span,td,label{font-family:'Inter',system-ui,sans-serif!important;color:#E8E4D8;}
+h1,h2,h3,h4,h5,h6{font-family:'Spectral',Georgia,serif!important;color:#D4AF37!important;letter-spacing:.025em;}
+
+@keyframes goldPulse{
+  0%,100%{box-shadow:0 0 8px rgba(212,175,55,.2),0 0 20px rgba(212,175,55,.05);}
+  50%{box-shadow:0 0 24px rgba(212,175,55,.55),0 0 60px rgba(212,175,55,.15);}
+}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes rmCardPulse{0%,100%{box-shadow:0 0 0 0 transparent;}50%{box-shadow:0 0 22px rgba(212,175,55,.18);}}
+@keyframes rmNodePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.09);}}
+@keyframes alchUnlock{
+  0%{filter:grayscale(1) brightness(.35);opacity:.2;transform:scale(.96) translateX(-6px);}
+  55%{filter:grayscale(0) brightness(1.4);transform:scale(1.03) translateX(0);}
+  100%{filter:grayscale(0) brightness(1);opacity:1;transform:scale(1) translateX(0);}
+}
+@keyframes aqFadeIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes aqShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-5px);}60%{transform:translateX(5px);}}
+
+/* ── QUOTE BLOCK ── */
+.alch-quote-block{
+  max-width:780px;margin:3rem auto;
+  padding:2.5rem 2.75rem 2.5rem 3.75rem;
+  background:linear-gradient(135deg,rgba(26,26,46,.97),rgba(22,33,62,.97));
+  border-left:3px solid #D4AF37;
+  border-right:1px solid rgba(212,175,55,.18);
+  border-top:1px solid rgba(212,175,55,.12);
+  border-bottom:1px solid rgba(212,175,55,.12);
+  border-radius:0 10px 10px 0;
+  position:relative;
+  animation:goldPulse 5s ease-in-out infinite;
+}
+.alch-quote-block::before{
+  content:'\201C';font-family:'Spectral',serif;font-size:7rem;line-height:.8;
+  color:rgba(212,175,55,.15);position:absolute;top:1.2rem;left:.9rem;pointer-events:none;
+}
+.alch-quote-block p.quote-text{font-family:'Spectral',serif!important;font-style:italic;font-size:1.08rem;line-height:2.05;color:#E8E4D8;margin:0 0 1.35rem;}
+.alch-quote-block p.quote-attr{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:#D4AF37;margin:0;}
+
+/* ── FOOTER ── */
+.alch-footer{
+  background:#0D0D0D;border-top:1px solid rgba(212,175,55,.16);
+  padding:2rem 1rem;text-align:center;
+  font-size:.68rem;letter-spacing:.18em;color:#9A9080;text-transform:uppercase;
+}
+.alch-footer .brand{color:#D4AF37;font-weight:600;}
+.alch-footer .edition{color:rgba(212,175,55,.45);font-style:italic;text-transform:none;letter-spacing:.1em;}
+
+/* ── ROADMAP ── */
+#alch-roadmap{max-width:800px;margin:0 auto;padding:2.5rem 1rem;}
+.rm-header{text-align:center;margin-bottom:3rem;}
+.rm-header h2{font-size:clamp(1.7rem,4vw,2.4rem);margin:0 0 .5rem;}
+.rm-header p{color:#9A9080;font-size:.875rem;margin:0;}
+.rm-progress-wrap{display:flex;justify-content:space-between;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#9A9080;margin-bottom:.4rem;}
+.rm-progress-track{background:rgba(255,255,255,.07);border-radius:20px;height:5px;margin-bottom:2.5rem;overflow:hidden;}
+.rm-progress-fill{height:100%;background:linear-gradient(90deg,#2E5339,#D4AF37,#3BBFBF);border-radius:20px;transition:width .9s cubic-bezier(.34,1,.64,1);}
+.rm-track{position:relative;}
+.rm-track::before{content:'';position:absolute;left:29px;top:30px;bottom:30px;width:2px;background:linear-gradient(to bottom,rgba(212,175,55,.08),rgba(212,175,55,.45),rgba(212,175,55,.08));pointer-events:none;}
+.rm-step{display:flex;gap:1.25rem;margin-bottom:1.5rem;position:relative;}
+.rm-node{flex-shrink:0;width:60px;height:60px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:1.4rem;position:relative;z-index:1;transition:all .5s cubic-bezier(.34,1.56,.64,1);}
+.rm-card{flex:1;background:linear-gradient(145deg,#1A1A2E,#16213E);border:1px solid rgba(212,175,55,.22);border-radius:11px;padding:1.35rem 1.6rem;position:relative;overflow:hidden;transition:border-color .35s,box-shadow .35s;}
+.rm-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--step-c,#D4AF37),transparent);opacity:.45;}
+.rm-meta{display:flex;align-items:baseline;flex-wrap:wrap;gap:.6rem;margin-bottom:.45rem;}
+.rm-metal{font-family:'Spectral',serif;font-size:1.15rem;font-weight:600;color:var(--step-c,#D4AF37);}
+.rm-state{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#9A9080;}
+.rm-element-badge{margin-left:auto;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--step-c,#D4AF37);padding:.15rem .6rem;border-radius:20px;white-space:nowrap;}
+.rm-desc{font-size:.84rem;line-height:1.68;color:#C0B8A8;margin:0 0 1rem;}
+.rm-status-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;}
+.rm-status{display:flex;align-items:center;gap:.45rem;font-size:.72rem;color:#9A9080;}
+.rm-status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.rm-complete-btn{background:var(--step-c,#D4AF37);color:#0D0D0D;font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;padding:.55rem 1.4rem;border:none;border-radius:4px;cursor:pointer;transition:opacity .2s,transform .2s;}
+.rm-complete-btn:hover{opacity:.88;transform:translateY(-1px);}
+.rm-step--locked .rm-card{border-color:rgba(255,255,255,.06);filter:saturate(.25);}
+.rm-step--locked .rm-card::before{opacity:0;}
+.rm-step--locked .rm-node{filter:grayscale(1);opacity:.35;background:rgba(30,30,40,.8)!important;border-color:rgba(255,255,255,.12)!important;}
+.rm-step--locked .rm-metal{color:#555!important;}
+.rm-step--locked .rm-desc{color:#444!important;}
+.rm-step--active .rm-card{border-color:rgba(212,175,55,.45);animation:rmCardPulse 3.5s ease-in-out infinite;}
+.rm-step--active .rm-node{animation:rmNodePulse 2.5s ease-in-out infinite;}
+.rm-step--completed .rm-node::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,15,5,.65);border-radius:50%;font-size:1rem;color:#D4AF37;font-family:'Inter',sans-serif;font-weight:700;}
+.rm-step--completed .rm-card{border-color:rgba(46,83,57,.5);}
+.rm-step--unlocking{animation:alchUnlock .85s cubic-bezier(.22,1,.36,1) forwards;}
+
+/* ── ASSESSMENT ── */
+#alch-quiz-wrap{max-width:740px;margin:0 auto;padding:2.5rem 1rem;}
+.aq-header{text-align:center;margin-bottom:2.5rem;}
+.aq-header h2{font-size:clamp(1.5rem,3.5vw,2rem);margin:0 0 .5rem;}
+.aq-header p{color:#9A9080;font-size:.85rem;line-height:1.6;margin:0;}
+.aq-progress-row{display:flex;justify-content:space-between;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#9A9080;margin-bottom:.4rem;}
+.aq-progress-track{height:4px;background:rgba(255,255,255,.07);border-radius:20px;margin-bottom:2rem;overflow:hidden;}
+.aq-progress-fill{height:100%;background:linear-gradient(90deg,#D4AF37,#F0D060);border-radius:20px;transition:width .4s ease;}
+.aq-question{background:linear-gradient(145deg,#1A1A2E,#16213E);border:1px solid rgba(212,175,55,.22);border-radius:12px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden;animation:aqFadeIn .35s ease forwards;transition:border-color .3s;}
+.aq-question::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.4),transparent);}
+.aq-question.is-unanswered{border-color:rgba(200,60,60,.6);animation:aqShake .35s ease;}
+.aq-q-meta{display:flex;align-items:center;gap:.6rem;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#9A9080;margin-bottom:.8rem;flex-wrap:wrap;}
+.aq-core-badge{background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);color:#D4AF37;padding:.12rem .5rem;border-radius:3px;font-size:.6rem;}
+.aq-weight-badge{color:rgba(212,175,55,.55);margin-left:auto;}
+.aq-q-text{font-family:'Spectral',serif;font-size:1.03rem;color:#E8E4D8;line-height:1.7;margin:0 0 1.4rem;}
+.aq-options{display:grid;gap:.65rem;}
+.aq-option{display:flex;align-items:flex-start;gap:.8rem;padding:.85rem 1rem;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:8px;cursor:pointer;transition:background .18s,border-color .18s;user-select:none;}
+.aq-option:hover{background:rgba(212,175,55,.07);border-color:rgba(212,175,55,.3);}
+.aq-option.is-selected{background:rgba(212,175,55,.1);border-color:rgba(212,175,55,.5);}
+.aq-option.is-correct{background:rgba(46,83,57,.28)!important;border-color:rgba(46,83,57,.8)!important;cursor:default;}
+.aq-option.is-wrong{background:rgba(180,45,45,.2)!important;border-color:rgba(180,45,45,.55)!important;cursor:default;}
+.aq-option.is-locked{pointer-events:none;}
+.aq-marker{flex-shrink:0;width:24px;height:24px;border-radius:50%;border:2px solid rgba(212,175,55,.3);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#9A9080;font-weight:600;transition:all .18s;margin-top:.08rem;}
+.aq-option.is-selected .aq-marker{background:rgba(212,175,55,.18);border-color:#D4AF37;color:#D4AF37;}
+.aq-option.is-correct .aq-marker{background:rgba(46,83,57,.6);border-color:#2E5339;color:#7FBA8A;}
+.aq-option.is-wrong .aq-marker{background:rgba(180,45,45,.4);border-color:#B43030;color:#E07070;}
+.aq-option-text{font-size:.875rem;color:#C8C0B0;line-height:1.55;flex:1;}
+.aq-submit-area{display:flex;justify-content:flex-end;align-items:center;gap:1rem;margin-top:2rem;flex-wrap:wrap;}
+.aq-submit-btn{background:linear-gradient(135deg,#D4AF37 0%,#8B6914 50%,#D4AF37 100%);background-size:200% auto;color:#0D0D0D;font-weight:700;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;padding:.9rem 2.5rem;border:none;border-radius:4px;cursor:pointer;transition:background-position .4s,transform .2s,box-shadow .3s;}
+.aq-submit-btn:hover{background-position:right center;transform:translateY(-2px);box-shadow:0 0 28px rgba(212,175,55,.45);}
+.aq-validation-msg{font-size:.78rem;color:#C07070;display:none;}
+.aq-validation-msg.is-visible{display:flex;align-items:center;gap:.4rem;}
+.aq-result{border-radius:16px;padding:3rem 2rem 2.5rem;text-align:center;animation:aqFadeIn .6s ease forwards;margin-top:2rem;}
+.aq-result--pass{background:linear-gradient(145deg,#0A1A0F,#0F2018);border:1px solid rgba(46,83,57,.9);}
+.aq-result--fail{background:linear-gradient(145deg,#1A0D0D,#2A1010);border:1px solid rgba(160,50,50,.5);}
+.aq-result-icon{font-size:3.2rem;margin-bottom:1rem;}
+.aq-result-title{font-family:'Spectral',serif;font-size:1.75rem;margin:0 0 .6rem;}
+.aq-result--pass .aq-result-title{color:#D4AF37;}
+.aq-result--fail .aq-result-title{color:#C07070;}
+.aq-result-score{font-size:2.8rem;font-weight:700;margin:.75rem 0;line-height:1;}
+.aq-result--pass .aq-result-score{color:#D4AF37;}
+.aq-result--fail .aq-result-score{color:#9A9080;}
+.aq-result-msg{font-size:.88rem;color:#9A9080;line-height:1.75;max-width:480px;margin:0 auto 1.5rem;}
+.aq-code-box{display:inline-block;background:rgba(212,175,55,.09);border:1px solid rgba(212,175,55,.38);border-radius:8px;padding:1.25rem 2.25rem;margin:.5rem auto 1.5rem;}
+.aq-code-label{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:#9A9080;margin-bottom:.5rem;}
+.aq-code-value{font-family:'Courier New',monospace;font-size:1.5rem;font-weight:700;color:#D4AF37;letter-spacing:.18em;}
+.aq-core-fail-note{background:rgba(160,50,50,.15);border:1px solid rgba(160,50,50,.4);border-radius:8px;padding:.75rem 1.2rem;font-size:.82rem;color:#C07070;max-width:480px;margin:0 auto 1.25rem;text-align:left;display:flex;align-items:flex-start;gap:.5rem;}
+.aq-retry-btn{background:rgba(255,255,255,.06);color:#9A9080;border:1px solid rgba(255,255,255,.12);font-weight:600;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;padding:.8rem 2rem;border-radius:4px;cursor:pointer;margin-top:1rem;transition:background .2s,border-color .2s,color .2s;}
+.aq-retry-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(212,175,55,.3);color:#D4AF37;}
+
+/* ── PRICING ── */
+#alch-pricing{max-width:1080px;margin:0 auto;padding:3rem 1.25rem;}
+.ps-header{text-align:center;margin-bottom:3.5rem;}
+.ps-header h2{font-size:clamp(1.8rem,4vw,2.5rem);margin:0 0 .75rem;}
+.ps-header p{color:#9A9080;font-size:.92rem;line-height:1.75;max-width:540px;margin:0 auto;}
+.ps-row-label{text-align:center;font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(212,175,55,.5);margin:0 0 1.25rem;display:flex;align-items:center;gap:1rem;}
+.ps-row-label::before,.ps-row-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.2));}
+.ps-row-label::after{transform:scaleX(-1);}
+.ps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-bottom:1rem;}
+.ps-grid+.ps-row-label{margin-top:3rem;}
+.pc{background:linear-gradient(150deg,#1A1A2E,#16213E);border:1px solid rgba(212,175,55,.22);border-radius:16px;padding:2.25rem 2rem 2rem;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s,transform .3s;}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.45),transparent);}
+.pc:hover{border-color:rgba(212,175,55,.52);box-shadow:0 16px 48px rgba(0,0,0,.4),0 0 35px rgba(212,175,55,.1);transform:translateY(-5px);}
+.pc--featured{border-color:rgba(212,175,55,.5);box-shadow:0 8px 40px rgba(0,0,0,.35),0 0 40px rgba(212,175,55,.1);}
+.pc-featured-badge{position:absolute;top:0;right:1.75rem;background:linear-gradient(135deg,#D4AF37,#8B6914);color:#0D0D0D;font-weight:700;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;padding:.32rem .85rem;border-radius:0 0 8px 8px;}
+.pc-accent-stripe{position:absolute;top:0;left:0;width:4px;height:100%;border-radius:16px 0 0 16px;opacity:.7;}
+.pc-tag{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#D4AF37;margin-bottom:.7rem;}
+.pc-title{font-family:'Spectral',serif;font-size:1.3rem;font-weight:600;color:#E8E4D8;line-height:1.3;margin:0 0 .45rem;}
+.pc-subtitle{font-size:.82rem;color:#9A9080;line-height:1.6;margin:0 0 1.75rem;}
+.pc-price{display:flex;align-items:baseline;gap:.2rem;margin-bottom:1.75rem;}
+.pc-currency{font-size:1.15rem;font-weight:600;color:#D4AF37;align-self:flex-start;margin-top:.55rem;}
+.pc-amount{font-size:3.25rem;font-weight:700;color:#D4AF37;line-height:1;letter-spacing:-.025em;}
+.pc-period{font-size:.8rem;color:#9A9080;margin-left:.15rem;align-self:flex-end;padding-bottom:.3rem;}
+.pc-divider{border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.18),transparent);margin:0 0 1.6rem;}
+.pc-features{list-style:none;padding:0;margin:0 0 2rem;display:flex;flex-direction:column;gap:.7rem;flex-grow:1;}
+.pc-features li{display:flex;align-items:flex-start;gap:.65rem;font-size:.875rem;color:#C8C0B0;line-height:1.55;}
+.pc-check{flex-shrink:0;margin-top:.1rem;}
+.pc-cta{display:flex;flex-direction:column;gap:.65rem;}
+.pc-btn-gold{display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;background:linear-gradient(135deg,#D4AF37 0%,#8B6914 50%,#D4AF37 100%);background-size:200% auto;color:#0D0D0D;font-weight:700;font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;padding:1rem 1.5rem;border:none;border-radius:6px;cursor:pointer;text-decoration:none!important;transition:background-position .4s,box-shadow .3s,transform .2s;text-align:center;}
+.pc-btn-gold:hover{background-position:right center;box-shadow:0 0 28px rgba(212,175,55,.45);transform:translateY(-1px);color:#0D0D0D;}
+.pc-btn-colored{display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;color:#fff;font-weight:700;font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;padding:1rem 1.5rem;border:none;border-radius:6px;cursor:pointer;text-decoration:none!important;background-size:200% auto;transition:background-position .4s,box-shadow .3s,transform .2s;text-align:center;}
+.pc-btn-colored:hover{background-position:right center;transform:translateY(-1px);}
+.pc-note{display:flex;align-items:center;justify-content:center;gap:.35rem;font-size:.68rem;color:#9A9080;letter-spacing:.05em;text-align:center;}
+.pc-savings-chip{display:inline-flex;align-items:center;gap:.35rem;background:rgba(46,83,57,.25);border:1px solid rgba(46,83,57,.6);color:#7FBA8A;font-size:.65rem;letter-spacing:.1em;padding:.25rem .7rem;border-radius:20px;margin-bottom:1.25rem;}
+.checkout-embed-zone{background:rgba(212,175,55,.03);border:1px dashed rgba(212,175,55,.22);border-radius:8px;padding:1rem;min-height:56px;display:flex;align-items:center;justify-content:center;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(212,175,55,.35);}
+.ps-trust-strip{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.5rem 2rem;margin-top:3.5rem;padding:1.5rem 2rem;background:rgba(212,175,55,.035);border:1px solid rgba(212,175,55,.1);border-radius:12px;}
+.ps-trust-item{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:#9A9080;white-space:nowrap;}
+.ps-trust-divider{width:1px;height:18px;background:rgba(212,175,55,.18);}
+@media(max-width:600px){.ps-trust-divider{display:none;}.pc{padding:1.75rem 1.5rem;}.pc-amount{font-size:2.75rem;}}
+</style>
+
+<!-- ═══════════════════════════════════════
+  SECTION 1 — QUOTE
+═══════════════════════════════════════ -->
+<div style="background:#0D0D0D;padding:3rem 1.5rem;">
+  <div class="alch-quote-block">
+    <p class="quote-text">
+      Drink from the well, my Son, for it is refreshing.
+      Drink from the well, my Daughter, for it is a blessing.
+      Everything you are looking for is within you.
+    </p>
+    <p class="quote-attr">— An Alchemist</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+  SECTION 2 — ROADMAP
+═══════════════════════════════════════ -->
+<div style="background:#0D0D0D;padding:3rem 1.5rem;">
+  <div id="alch-roadmap">
+    <div class="rm-header">
+      <h2>The Alchemical Path</h2>
+      <p>Eight stages of transformation. Complete each assessment to reveal the next.</p>
+    </div>
+    <div class="rm-progress-wrap">
+      <span id="rm-progress-text">0 of 8 Stages Complete</span>
+      <span id="rm-progress-pct">0%</span>
+    </div>
+    <div class="rm-progress-track">
+      <div class="rm-progress-fill" id="rm-fill" style="width:0%"></div>
+    </div>
+    <div class="rm-track" id="rm-track"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+  SECTION 3 — ASSESSMENT
+═══════════════════════════════════════ -->
+<div style="background:#0D0D0D;padding:3rem 1.5rem;">
+  <div id="alch-quiz-wrap">
+    <div class="aq-header">
+      <h2 id="aq-title">Level Assessment</h2>
+      <p>Answer every question. Core questions (marked <strong style="color:#D4AF37;">✦ Core</strong>) must be correct.<br>Passing score: <strong style="color:#D4AF37;">80%</strong></p>
+    </div>
+    <div id="aq-app"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+  SECTION 4 — PRICING
+═══════════════════════════════════════ -->
+<div style="background:#0D0D0D;padding:1rem 1.5rem 4rem;">
+  <section id="alch-pricing">
+    <div class="ps-header">
+      <h2>Choose Your Path</h2>
+      <p>Every tier has been priced as an act of service. Your investment in yourself is the only prerequisite.</p>
+    </div>
+
+    <div class="ps-row-label">Monthly Membership Plans</div>
+    <div class="ps-grid">
+      <div class="pc pc--featured">
+        <div class="pc-featured-badge">Most Complete</div>
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#D4AF37,#8B6914);"></div>
+        <p class="pc-tag">Full Alchemy Membership</p>
+        <h3 class="pc-title">The Codex of Transformation</h3>
+        <p class="pc-subtitle">Complete access to the entire alchemical curriculum — every video, module, and assessment.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">5.55</span><span class="pc-period">/ month</span>
+        </div>
+        <span class="pc-savings-chip">✦ Best value for the full journey</span>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> 60 HD Video Lessons across all 8 stages</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> 60 Modules &amp; in-depth Articles</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> 12 Weighted Assessments with unlock codes</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> Full Alchemical Roadmap dashboard</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> New content added each month</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> Cancel any time — no lock-in</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-gold">Begin Transmutation →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 Secure payment · Cancel anytime</p>
+        </div>
+      </div>
+      <div class="pc">
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#4DA6FF,#1a5fa8);"></div>
+        <p class="pc-tag">Entry Access</p>
+        <h3 class="pc-title">E-Learn Subscription</h3>
+        <p class="pc-subtitle">Begin your journey with curated foundational lessons and guided articles.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">3.95</span><span class="pc-period">/ month</span>
+        </div>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Foundational lessons: Tin → Iron</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Monthly article &amp; reading library</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Guided journalling exercises</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Entry-level stage assessments</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Upgrade to Full Membership anytime</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Cancel any time — no lock-in</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-colored" style="background:linear-gradient(135deg,#4DA6FF 0%,#1a5fa8 50%,#4DA6FF 100%);background-size:200% auto;">Start Learning →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 Secure payment · Cancel anytime</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ps-row-label">Individual Course Bundles — One-Time Purchase</div>
+    <div class="ps-grid">
+      <div class="pc">
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#4DA6FF,#1a5fa8);"></div>
+        <p class="pc-tag">Course Bundle · Air · Self</p>
+        <h3 class="pc-title">Self &amp; Time Management</h3>
+        <p class="pc-subtitle">Reclaim your time, architect your days, and align every action with your truest priorities.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">5.55</span><span class="pc-period">&nbsp;one-time</span>
+        </div>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> The Alchemy of Time framework</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Daily rhythm &amp; ritual design system</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Eliminating energy leaks</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Quarterly self-review protocol</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Lifetime access · No expiry</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-colored" style="background:linear-gradient(135deg,#4DA6FF 0%,#1a5fa8 50%,#4DA6FF 100%);background-size:200% auto;">Claim This Course →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 One-time payment · Lifetime access</p>
+        </div>
+      </div>
+      <div class="pc">
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#2E5339,#1a3020);"></div>
+        <p class="pc-tag">Course Bundle · Earth · Wealth</p>
+        <h3 class="pc-title">You Deserve Financial Independence</h3>
+        <p class="pc-subtitle">The complete roadmap from Lead to Gold — practical alchemy for real financial freedom.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">19.99</span><span class="pc-period">&nbsp;one-time</span>
+        </div>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Iron → Silver wealth-building path</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Income streams, assets &amp; freedom mechanics</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Breaking financial belief patterns</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> The Sovereignty Blueprint workbook</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Lifetime access · No expiry</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-colored" style="background:linear-gradient(135deg,#3a6e4a 0%,#1a3020 50%,#3a6e4a 100%);background-size:200% auto;color:#fff;">Begin Financial Alchemy →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 One-time payment · Lifetime access</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ps-trust-strip">
+      <div class="ps-trust-item"><span>🔒</span> Secure SSL Checkout</div>
+      <div class="ps-trust-divider"></div>
+      <div class="ps-trust-item"><span>♻</span> Cancel Anytime</div>
+      <div class="ps-trust-divider"></div>
+      <div class="ps-trust-item"><span>⚗</span> Curated by a Practicing Alchemist</div>
+      <div class="ps-trust-divider"></div>
+      <div class="ps-trust-item"><span>✦</span> The Alchemist's Path © 2025</div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════
+  FOOTER
+═══════════════════════════════════════ -->
+<footer class="alch-footer">
+  <span class="brand">The Alchemist's Path</span>
+  &nbsp;&nbsp;©&nbsp;2025&nbsp;&nbsp;–&nbsp;&nbsp;
+  <span class="edition">First Draft Edition</span>
+</footer>
+
+<!-- ═══════════════════════════════════════
+  JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+// ROADMAP
+(function(){
+  var STORAGE_KEY='alch_path_v1';
+  var ELEMENTS=[
+    {id:0,metal:'Tin',state:'Ignorance',elem:'Primordial',glyph:'☿',color:'#8B8FA8',bg:'rgba(139,143,168,.14)',desc:'The raw material. Unrefined ore — full of potential, blind to it. Every alchemist begins here.'},
+    {id:1,metal:'Lead',state:'Awareness',elem:'Shadow',glyph:'♄',color:'#7A8BA0',bg:'rgba(122,139,160,.14)',desc:'The first great gift: you begin to see. Awareness is not yet wisdom — it is the candle lit in a dark room.'},
+    {id:2,metal:'Iron',state:'Stability',elem:'Earth · Wealth',glyph:'♂',color:'#2E5339',bg:'rgba(46,83,57,.22)',desc:'Your roots go deep. You have made order from chaos — a stable foundation from which true growth becomes possible.'},
+    {id:3,metal:'Steel',state:'Security',elem:'Forged',glyph:'⚙',color:'#5A7A8C',bg:'rgba(90,122,140,.18)',desc:'Iron tempered in fire. Security is not comfort — it is the certainty that you can handle whatever comes.'},
+    {id:4,metal:'Copper',state:'Comfort',elem:'Fire · Spirit',glyph:'♀',color:'#E8743B',bg:'rgba(232,116,59,.16)',desc:'The warmth of what you have built. Comfort is a waypoint, not a destination — rest here, but do not settle.'},
+    {id:5,metal:'Silver',state:'Independence',elem:'Air · Self',glyph:'☽',color:'#4DA6FF',bg:'rgba(77,166,255,.14)',desc:'You breathe free air. No longer dependent on external approval — your authentic self begins to shine.'},
+    {id:6,metal:'Gold',state:'Freedom',elem:'Water · Spirit',glyph:'☉',color:'#D4AF37',bg:'rgba(212,175,55,.16)',desc:'The Great Work, achieved. Gold is not a material state — it is a sovereign way of moving through the world.'},
+    {id:7,metal:'Palladium',state:'Mastery · Giving Back',elem:'Ether',glyph:'⊕',color:'#3BBFBF',bg:'rgba(59,191,191,.14)',desc:'The highest expression: you have become the well. Mastery is overflow that nourishes others.'}
+  ];
+  function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{completed:[],current:0};}catch(_){return{completed:[],current:0};}}
+  function save(s){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));}catch(_){}}
+  function render(){
+    var s=load(),track=document.getElementById('rm-track'),fill=document.getElementById('rm-fill'),
+        ptxt=document.getElementById('rm-progress-text'),ppct=document.getElementById('rm-progress-pct'),
+        done=s.completed.length,pct=Math.round((done/ELEMENTS.length)*100);
+    if(fill)fill.style.width=pct+'%';
+    if(ptxt)ptxt.textContent=done+' of '+ELEMENTS.length+' Stages Complete';
+    if(ppct)ppct.textContent=pct+'%';
+    if(!track)return;
+    track.innerHTML='';
+    ELEMENTS.forEach(function(el){
+      var isC=s.completed.indexOf(el.id)!==-1,isA=el.id===s.current&&!isC,isL=!isC&&el.id>s.current;
+      var step=document.createElement('div');
+      step.className='rm-step '+(isL?'rm-step--locked':isC?'rm-step--completed':'rm-step--active');
+      step.style.setProperty('--step-c',el.color);
+      var foot='';
+      if(isC)foot='<div class="rm-status" style="color:#2E5339;"><div class="rm-status-dot" style="background:#2E5339;"></div>Transmutation Complete</div>';
+      else if(isL)foot='<div class="rm-status"><div class="rm-status-dot"></div>Complete the previous stage to unlock</div>';
+      else if(isA)foot='<div class="rm-status-row"><div class="rm-status" style="color:'+el.color+';"><div class="rm-status-dot" style="background:'+el.color+';"></div>Current Stage — In Progress</div><button class="rm-complete-btn" style="background:'+el.color+';" onclick="alchRoadmap.completeLevel('+el.id+')">⚗ Complete Assessment</button></div>';
+      step.innerHTML='<div class="rm-node" style="background:'+el.bg+';border-color:'+(isL?'rgba(255,255,255,.1)':el.color)+';">'+el.glyph+'</div><div class="rm-card"><div class="rm-meta"><span class="rm-metal">'+el.metal+'</span><span class="rm-state">'+el.state+'</span><span class="rm-element-badge">'+el.elem+'</span></div><p class="rm-desc">'+el.desc+'</p>'+foot+'</div>';
+      track.appendChild(step);
+    });
+  }
+  function completeLevel(id){
+    var s=load();if(s.completed.indexOf(id)!==-1)return;
+    s.completed.push(id);s.current=id+1;save(s);render();
+    var steps=document.querySelectorAll('#rm-track .rm-step'),next=steps[id+1];
+    if(next){next.classList.add('rm-step--unlocking');setTimeout(function(){next.classList.remove('rm-step--unlocking');},900);setTimeout(function(){next.scrollIntoView({behavior:'smooth',block:'center'});},200);}
+  }
+  function resetAll(){save({completed:[],current:0});render();}
+  function devUnlockAll(){save({completed:ELEMENTS.map(function(e){return e.id;}),current:ELEMENTS.length});render();}
+  window.alchRoadmap={completeLevel:completeLevel,resetAll:resetAll,devUnlockAll:devUnlockAll};
+  render();
+})();
+
+// ASSESSMENT
+(function(){
+  var QUIZ_DATA={
+    title:'The Alchemical Path — Stage Assessment',levelId:0,passCode:'TRANSMUTE80',passThreshold:0.80,webhookUrl:'',
+    questions:[
+      {id:'q1',text:'The alchemical model describes Lead as "Awareness." What does this stage most accurately represent?',weight:3,isCore:true,correctIndex:1,options:['A period of financial struggle','The awakening of conscious self-observation — seeing your current patterns without judgment','The beginning of formal education','A transitional state between childhood and adulthood']},
+      {id:'q2',text:'"Everything you are looking for is within you." As a daily discipline, this principle asks you to:',weight:3,isCore:true,correctIndex:2,options:['Reject all mentors and outside input','Meditate until clarity arrives','Audit your inner beliefs and assumptions before seeking external solutions','Trust your feelings above all logic']},
+      {id:'q3',text:'Why does the framework treat Copper (Comfort) as a threshold rather than a destination?',weight:2,isCore:false,correctIndex:3,options:['Comfort means you haven\'t worked hard enough','Comfort leads to financial recklessness','The nervous system can\'t function when comfortable','Comfort that becomes permanent creates stagnation — growth lives just beyond your current ease']},
+      {id:'q4',text:'Which element represents Earth · Wealth and the building of tangible foundations?',weight:2,isCore:false,correctIndex:0,options:['Iron (Stability) — structure, discipline, and solid foundations','Silver (Independence) — detachment from material systems','Gold (Freedom) — spiritual attainment','Lead (Awareness) — the heaviness of early consciousness']},
+      {id:'q5',text:'What is the distinction between Gold (Freedom) and Palladium (Mastery)?',weight:2,isCore:false,correctIndex:2,options:['Palladium means greater wealth','Palladium is total withdrawal from the world','Gold is personal sovereignty; Palladium is that sovereignty channelled to elevate others','Palladium means no further growth is needed']},
+      {id:'q6',text:'High Awareness but failing to build stability. What is the most likely cause?',weight:1,isCore:false,correctIndex:1,options:['Not enough educational content consumed','Information without embodied action keeps one in Lead — Iron requires consistent practice','Lack of right external circumstances','Need a specific mentor first']}
+    ]
+  };
+  var totalWeight=QUIZ_DATA.questions.reduce(function(s,q){return s+q.weight;},0);
+  var answers={},submitted=false;
+  var app=document.getElementById('aq-app');
+  var titleEl=document.getElementById('aq-title');
+  if(titleEl)titleEl.textContent=QUIZ_DATA.title;
+  function esc(s){var d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML;}
+  function buildQuiz(){
+    answers={};submitted=false;if(!app)return;app.innerHTML='';
+    var prog=document.createElement('div');
+    prog.innerHTML='<div class="aq-progress-row"><span>'+QUIZ_DATA.questions.length+' Questions</span><span>Pass: '+Math.ceil(totalWeight*QUIZ_DATA.passThreshold)+'/'+totalWeight+' pts</span></div><div class="aq-progress-track"><div class="aq-progress-fill" id="aq-pfill" style="width:0%"></div></div>';
+    app.appendChild(prog);
+    QUIZ_DATA.questions.forEach(function(q,i){
+      var block=document.createElement('div');block.className='aq-question';block.id='aq-block-'+q.id;
+      var opts=q.options.map(function(opt,oi){return '<div class="aq-option" id="aq-opt-'+q.id+'-'+oi+'" onclick="alchQuiz._pick(\''+q.id+'\','+oi+')"><div class="aq-marker">'+String.fromCharCode(65+oi)+'</div><div class="aq-option-text">'+esc(opt)+'</div></div>';}).join('');
+      block.innerHTML='<div class="aq-q-meta"><span>Q'+(i+1)+'</span>'+(q.isCore?'<span class="aq-core-badge">✦ Core</span>':'')+'<span class="aq-weight-badge">'+q.weight+'pt</span></div><p class="aq-q-text">'+esc(q.text)+'</p><div class="aq-options">'+opts+'</div>';
+      app.appendChild(block);
+    });
+    var sub=document.createElement('div');sub.className='aq-submit-area';sub.id='aq-submit-area';
+    sub.innerHTML='<span class="aq-validation-msg" id="aq-val-msg">⚠ Please answer all questions.</span><button class="aq-submit-btn" onclick="alchQuiz._submit()">⚗ Submit Assessment</button>';
+    app.appendChild(sub);updateBar();
+  }
+  function pick(qId,oi){
+    if(submitted)return;answers[qId]=oi;
+    QUIZ_DATA.questions.forEach(function(q){if(q.id!==qId)return;q.options.forEach(function(_,i){var el=document.getElementById('aq-opt-'+q.id+'-'+i),mrk=el&&el.querySelector('.aq-marker');if(!el)return;el.classList.toggle('is-selected',i===oi);if(mrk)mrk.textContent=(i===oi)?'●':String.fromCharCode(65+i);});});
+    updateBar();
+  }
+  function updateBar(){var done=Object.keys(answers).length,fill=document.getElementById('aq-pfill');if(fill)fill.style.width=((done/QUIZ_DATA.questions.length)*100)+'%';}
+  function submit(){
+    if(submitted)return;
+    var missing=QUIZ_DATA.questions.filter(function(q){return answers[q.id]===undefined;});
+    if(missing.length>0){missing.forEach(function(q){var b=document.getElementById('aq-block-'+q.id);if(b){b.classList.add('is-unanswered');setTimeout(function(){b.classList.remove('is-unanswered');},1800);}});var vm=document.getElementById('aq-val-msg');if(vm){vm.classList.add('is-visible');setTimeout(function(){vm.classList.remove('is-visible');},3000);}return;}
+    submitted=true;
+    var earned=0,coreF=[];
+    QUIZ_DATA.questions.forEach(function(q){var ok=(answers[q.id]===q.correctIndex);if(ok)earned+=q.weight;if(q.isCore&&!ok)coreF.push(q);});
+    var pct=earned/totalWeight,passed=pct>=QUIZ_DATA.passThreshold&&coreF.length===0;
+    QUIZ_DATA.questions.forEach(function(q){q.options.forEach(function(_,oi){var el=document.getElementById('aq-opt-'+q.id+'-'+oi);if(!el)return;el.classList.add('is-locked');if(oi===q.correctIndex)el.classList.add('is-correct');if(answers[q.id]===oi&&oi!==q.correctIndex)el.classList.add('is-wrong');var mrk=el.querySelector('.aq-marker');if(mrk)mrk.textContent=oi===q.correctIndex?'✓':answers[q.id]===oi?'✗':String.fromCharCode(65+oi);});});
+    var sa=document.getElementById('aq-submit-area');if(sa)sa.remove();
+    setTimeout(function(){showResult(passed,pct,earned,coreF);},700);
+  }
+  function showResult(passed,pct,earned,coreF){
+    var pctD=Math.round(pct*100),r=document.createElement('div');
+    r.className='aq-result '+(passed?'aq-result--pass':'aq-result--fail');
+    if(passed){
+      r.innerHTML='<div class="aq-result-icon">⚗</div><h3 class="aq-result-title">Transmutation Complete</h3><div class="aq-result-score">'+pctD+'%</div><p class="aq-result-msg">You have demonstrated the understanding required to advance.</p><div class="aq-code-box"><div class="aq-code-label">Unlock Code</div><div class="aq-code-value">'+esc(QUIZ_DATA.passCode)+'</div></div><button class="aq-retry-btn" onclick="alchQuiz._reset()">Retake for Mastery</button>';
+      if(window.alchRoadmap)window.alchRoadmap.completeLevel(QUIZ_DATA.levelId);
+    }else{
+      var cm=coreF.length>0?'<div class="aq-core-fail-note">⚠ Core question'+(coreF.length>1?'s were':' was')+' answered incorrectly. These must be mastered before advancing.</div>':'';
+      r.innerHTML='<div class="aq-result-icon">🜃</div><h3 class="aq-result-title">Continue Your Study</h3><div class="aq-result-score">'+pctD+'%</div><p class="aq-result-msg">A score of '+Math.round(QUIZ_DATA.passThreshold*100)+'% or higher is required, with all core principles correct.</p>'+cm+'<button class="aq-submit-btn" onclick="alchQuiz._reset()" style="margin-top:.5rem;">⚗ Retake Assessment</button>';
+    }
+    app.appendChild(r);setTimeout(function(){r.scrollIntoView({behavior:'smooth',block:'center'});},100);
+  }
+  function reset(){buildQuiz();var w=document.getElementById('alch-quiz-wrap');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});}
+  window.alchQuiz={_pick:pick,_submit:submit,_reset:reset};
+  buildQuiz();
+})();
+</script>

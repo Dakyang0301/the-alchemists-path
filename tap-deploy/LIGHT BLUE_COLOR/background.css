@@ -1,0 +1,33 @@
+/* ============================================================
+   THE ALCHEMIST'S PATH — Background only
+   Luminous azure gradient + canvas starfield.
+   No fonts, no layout. Just drop into your existing site.
+   ============================================================ */
+
+/* 1. The luminous blue gradient — put on <body> (or any full-page wrapper) */
+.alchemist-bg {
+  background:
+    radial-gradient(120% 90% at 50% -10%,
+      #4a89d8 0%,    /* lighter, brighter top */
+      #2e60ac 32%,
+      #1b407e 70%,
+      #14346f 100%); /* deep at the bottom */
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* 2. The star canvas — sits fixed behind everything */
+#starfield {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 3. Keep your real content above the stars */
+.alchemist-content {
+  position: relative;
+  z-index: 2;
+}

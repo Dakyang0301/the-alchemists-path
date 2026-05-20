@@ -1,0 +1,739 @@
+<!-- ================================================================
+  COMPONENT 3 — THE ALCHEMIST'S PATH
+  WEIGHTED ASSESSMENT ENGINE
+  ─────────────────────────────────────────────────────────────────
+  WHERE TO PASTE: Each Lesson/Module page > Raw HTML element
+  DEPENDENCIES: Component 1 (Global Styles) recommended in <head>
+
+  HOW TO CUSTOMISE:
+  ┌─ QUIZ_DATA object (below) — edit freely:
+  │   title         → displayed at top of quiz
+  │   levelId       → must match the roadmap stage id (0–7)
+  │   passCode      → the code shown on success (change per module)
+  │   passThreshold → 0.80 = 80% (do not change without reason)
+  │   webhookUrl    → paste your System.io automation webhook URL
+  │
+  │   questions[]:
+  │     text        → the question stem
+  │     weight      → point value (1 = minor, 2 = standard, 3 = core)
+  │     isCore      → true: student MUST answer correctly to pass
+  │                   (even if overall % is ≥80%)
+  │     correctIndex→ 0-based index of the correct answer in options[]
+  │     options[]   → array of answer strings
+  └─
+
+  WEBHOOK PAYLOAD (on pass):
+    { event, code, scorePercent, earnedPts, totalPts, levelId, answers }
+
+  ROADMAP INTEGRATION:
+    On pass, calls window.alchRoadmap.completeLevel(levelId)
+    if the roadmap component is present on the same page.
+    For separate pages: use the webhook to trigger unlock via GHL/Zapier.
+  ================================================================ -->
+
+<!-- Include if Component 1 is NOT in page head:
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--charcoal:#0D0D0D;--velvet:#1A1A2E;--surface:#16213E;
+--text-main:#E8E4D8;--text-muted:#9A9080;--green:#2E5339;}
+</style>
+-->
+
+<style>
+/* ── Assessment Engine Styles ── */
+#alch-quiz-wrap {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.aq-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.aq-header h2 {
+  font-family: 'Spectral', Georgia, serif;
+  color: #D4AF37;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.02em;
+}
+.aq-header p { color: #9A9080; font-size: 0.85rem; margin: 0; line-height: 1.6; }
+
+/* Progress counter */
+.aq-progress-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9A9080;
+  margin-bottom: 0.4rem;
+}
+.aq-progress-track {
+  height: 4px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 20px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+.aq-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4AF37, #F0D060);
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+/* Question block */
+.aq-question {
+  background: linear-gradient(145deg, #1A1A2E 0%, #16213E 100%);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 12px;
+  padding: 1.75rem 1.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  animation: aqFadeIn 0.35s ease forwards;
+  transition: border-color 0.3s;
+}
+.aq-question::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent);
+}
+.aq-question.is-unanswered {
+  border-color: rgba(200, 60, 60, 0.6);
+  animation: aqShake 0.35s ease;
+}
+
+.aq-q-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #9A9080;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+}
+.aq-core-badge {
+  background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.3);
+  color: #D4AF37;
+  padding: 0.12rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+.aq-weight-badge {
+  color: rgba(212,175,55,0.55);
+  margin-left: auto;
+}
+
+.aq-q-text {
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.03rem;
+  color: #E8E4D8;
+  line-height: 1.7;
+  margin: 0 0 1.4rem;
+}
+
+/* Answer options */
+.aq-options { display: grid; gap: 0.65rem; }
+
+.aq-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  user-select: none;
+}
+.aq-option:hover {
+  background: rgba(212,175,55,0.07);
+  border-color: rgba(212,175,55,0.3);
+}
+.aq-option.is-selected {
+  background: rgba(212,175,55,0.1);
+  border-color: rgba(212,175,55,0.5);
+}
+.aq-option.is-correct {
+  background: rgba(46,83,57,0.28) !important;
+  border-color: rgba(46,83,57,0.8) !important;
+  cursor: default;
+}
+.aq-option.is-wrong {
+  background: rgba(180,45,45,0.2) !important;
+  border-color: rgba(180,45,45,0.55) !important;
+  cursor: default;
+}
+.aq-option.is-locked { pointer-events: none; }
+
+.aq-marker {
+  flex-shrink: 0;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(212,175,55,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  color: #9A9080;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  transition: all 0.18s;
+  margin-top: 0.08rem;
+}
+.aq-option.is-selected .aq-marker {
+  background: rgba(212,175,55,0.18);
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+.aq-option.is-correct .aq-marker { background: rgba(46,83,57,0.6); border-color: #2E5339; color: #7FBA8A; }
+.aq-option.is-wrong   .aq-marker { background: rgba(180,45,45,0.4); border-color: #B43030; color: #E07070; }
+
+.aq-option-text {
+  font-size: 0.875rem;
+  color: #C8C0B0;
+  line-height: 1.55;
+  flex: 1;
+}
+
+/* Submit area */
+.aq-submit-area {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.aq-submit-btn {
+  background: linear-gradient(135deg, #D4AF37 0%, #8B6914 50%, #D4AF37 100%);
+  background-size: 200% auto;
+  color: #0D0D0D;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.9rem 2.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-position 0.4s, transform 0.2s, box-shadow 0.3s;
+}
+.aq-submit-btn:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px rgba(212,175,55,0.45);
+}
+
+.aq-validation-msg {
+  font-size: 0.78rem;
+  color: #C07070;
+  display: none;
+  letter-spacing: 0.04em;
+}
+.aq-validation-msg.is-visible { display: flex; align-items: center; gap: 0.4rem; }
+
+/* Result screens */
+.aq-result {
+  border-radius: 16px;
+  padding: 3rem 2rem 2.5rem;
+  text-align: center;
+  animation: aqFadeIn 0.6s ease forwards;
+  margin-top: 2rem;
+}
+.aq-result--pass {
+  background: linear-gradient(145deg, #0A1A0F 0%, #0F2018 100%);
+  border: 1px solid rgba(46,83,57,0.9);
+}
+.aq-result--fail {
+  background: linear-gradient(145deg, #1A0D0D 0%, #2A1010 100%);
+  border: 1px solid rgba(160,50,50,0.5);
+}
+
+.aq-result-icon   { font-size: 3.2rem; margin-bottom: 1rem; }
+.aq-result-title  {
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.75rem;
+  margin: 0 0 0.6rem;
+  letter-spacing: 0.02em;
+}
+.aq-result--pass .aq-result-title { color: #D4AF37; }
+.aq-result--fail .aq-result-title { color: #C07070; }
+
+.aq-result-score {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0.75rem 0;
+  line-height: 1;
+}
+.aq-result--pass .aq-result-score { color: #D4AF37; }
+.aq-result--fail .aq-result-score { color: #9A9080; }
+
+.aq-result-msg {
+  font-size: 0.88rem;
+  color: #9A9080;
+  line-height: 1.75;
+  max-width: 480px;
+  margin: 0 auto 1.5rem;
+}
+
+/* Success code */
+.aq-code-box {
+  display: inline-block;
+  background: rgba(212,175,55,0.09);
+  border: 1px solid rgba(212,175,55,0.38);
+  border-radius: 8px;
+  padding: 1.25rem 2.25rem;
+  margin: 0.5rem auto 1.5rem;
+}
+.aq-code-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #9A9080;
+  margin-bottom: 0.5rem;
+}
+.aq-code-value {
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #D4AF37;
+  letter-spacing: 0.18em;
+}
+
+.aq-core-fail-note {
+  background: rgba(160,50,50,0.15);
+  border: 1px solid rgba(160,50,50,0.4);
+  border-radius: 8px;
+  padding: 0.75rem 1.2rem;
+  font-size: 0.82rem;
+  color: #C07070;
+  max-width: 480px;
+  margin: 0 auto 1.25rem;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.aq-retry-btn {
+  background: rgba(255,255,255,0.06);
+  color: #9A9080;
+  border: 1px solid rgba(255,255,255,0.12);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.8rem 2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.aq-retry-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(212,175,55,0.3);
+  color: #D4AF37;
+}
+
+@keyframes aqFadeIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes aqShake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-5px); }
+  60%       { transform: translateX(5px); }
+}
+</style>
+
+<!-- ════════════════════════════════════════════════════════════
+     ASSESSMENT HTML SHELL
+     ════════════════════════════════════════════════════════════ -->
+<div id="alch-quiz-wrap">
+  <div class="aq-header">
+    <h2 id="aq-title">Level Assessment</h2>
+    <p>Answer every question. Core questions (marked <strong style="color:#D4AF37;">✦ Core</strong>) must be correct to pass.<br>Passing score: <strong style="color:#D4AF37;">80%</strong></p>
+  </div>
+  <div id="aq-app"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     ASSESSMENT JAVASCRIPT ENGINE
+     ════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════════
+     ✏  QUIZ CONFIGURATION — EDIT THIS SECTION
+     ══════════════════════════════════════════════════════════
+     Duplicate this entire <script> block for each lesson page
+     and update QUIZ_DATA to match that module's content.
+  ══════════════════════════════════════════════════════════ */
+  var QUIZ_DATA = {
+    title:         'The Alchemical Path — Stage Assessment',
+    levelId:       0,            /* Must match the roadmap element id (0–7) */
+    passCode:      'TRANSMUTE80',/* Shown on success — change per module   */
+    passThreshold: 0.80,         /* 0.80 = 80% passing grade               */
+    webhookUrl:    '',           /* Paste your System.io webhook URL here   */
+
+    questions: [
+
+      /* ── CORE QUESTION — must be correct regardless of total score ── */
+      {
+        id: 'q1',
+        text: 'The alchemical model describes Lead as "Awareness." What does this stage most accurately represent in a student\'s transformation journey?',
+        weight: 3,
+        isCore: true,
+        correctIndex: 1,
+        options: [
+          'A period of financial struggle that must be endured before wealth arrives',
+          'The awakening of conscious self-observation — seeing your current patterns without judgment or excuse',
+          'The beginning of formal education and external skill acquisition',
+          'A transitional state between childhood and adult responsibility'
+        ]
+      },
+
+      /* ── CORE QUESTION ── */
+      {
+        id: 'q2',
+        text: 'The Alchemist\'s core principle states: "Everything you are looking for is within you." As a practical daily discipline, this principle asks you to:',
+        weight: 3,
+        isCore: true,
+        correctIndex: 2,
+        options: [
+          'Reject all mentors, teachers, and outside input as unnecessary',
+          'Meditate until clarity arrives before making any decision',
+          'Audit your inner beliefs, emotional patterns, and assumptions before seeking external solutions',
+          'Trust your feelings above all logic and analysis'
+        ]
+      },
+
+      /* ── STANDARD QUESTION ── */
+      {
+        id: 'q3',
+        text: 'The Copper stage is called "Comfort." Why does the Alchemist\'s framework treat comfort as a critical threshold rather than a destination?',
+        weight: 2,
+        isCore: false,
+        correctIndex: 3,
+        options: [
+          'Comfort indicates that you have not worked hard enough',
+          'Comfort always leads to financial recklessness',
+          'The nervous system cannot function well when comfortable',
+          'Comfort that becomes permanent creates stagnation — growth lives in the friction just beyond your current ease'
+        ]
+      },
+
+      /* ── STANDARD QUESTION ── */
+      {
+        id: 'q4',
+        text: 'Which alchemical element is mapped to the archetype of Earth · Wealth, representing the building of tangible, grounded foundations?',
+        weight: 2,
+        isCore: false,
+        correctIndex: 0,
+        options: [
+          'Iron (Stability) — structure, discipline, and the architecture of a solid life',
+          'Silver (Independence) — detachment from material systems',
+          'Gold (Freedom) — the spiritual attainment that unlocks worldly abundance',
+          'Lead (Awareness) — the heaviness of early-stage consciousness'
+        ]
+      },
+
+      /* ── STANDARD QUESTION ── */
+      {
+        id: 'q5',
+        text: 'Palladium — the eighth and final stage — is titled "Mastery · Giving Back." What is the precise distinction between Gold (Freedom) and Palladium?',
+        weight: 2,
+        isCore: false,
+        correctIndex: 2,
+        options: [
+          'Palladium represents greater accumulation of personal wealth than Gold',
+          'Palladium is a state of total withdrawal from the material world',
+          'Gold is personal sovereignty achieved; Palladium is that sovereignty consciously channelled to elevate others',
+          'Palladium means all inner work is complete and no further growth is needed'
+        ]
+      },
+
+      /* ── STANDARD QUESTION — lower weight ── */
+      {
+        id: 'q6',
+        text: 'A student demonstrates high Awareness (Lead) but repeatedly fails to build stability (Iron). According to the framework, what is the most likely root cause?',
+        weight: 1,
+        isCore: false,
+        correctIndex: 1,
+        options: [
+          'They have not yet consumed enough educational content',
+          'Information without embodied action keeps one in Lead — the Iron stage requires consistent practice, not more theory',
+          'They lack the right external circumstances to progress',
+          'They need a specific mentor before they can advance'
+        ]
+      }
+
+    ] /* end questions */
+  };
+  /* ══════════════════════════════════════════════════════════
+     END OF QUIZ CONFIGURATION
+  ══════════════════════════════════════════════════════════ */
+
+  /* ── Engine internals ── */
+  var totalWeight = QUIZ_DATA.questions.reduce(function (s, q) { return s + q.weight; }, 0);
+  var answers     = {};   /* { questionId: selectedOptionIndex } */
+  var submitted   = false;
+  var app         = document.getElementById('aq-app');
+  var titleEl     = document.getElementById('aq-title');
+  if (titleEl) titleEl.textContent = QUIZ_DATA.title;
+
+  /* ── Build quiz DOM ── */
+  function buildQuiz() {
+    answers   = {};
+    submitted = false;
+    if (!app) return;
+    app.innerHTML = '';
+
+    /* Progress row */
+    var prog = document.createElement('div');
+    prog.innerHTML =
+      '<div class="aq-progress-row">' +
+        '<span>' + QUIZ_DATA.questions.length + ' Questions</span>' +
+        '<span>Max: ' + totalWeight + ' pts &nbsp;·&nbsp; ' +
+        'Pass: ' + Math.ceil(totalWeight * QUIZ_DATA.passThreshold) + ' pts</span>' +
+      '</div>' +
+      '<div class="aq-progress-track">' +
+        '<div class="aq-progress-fill" id="aq-pfill" style="width:0%"></div>' +
+      '</div>';
+    app.appendChild(prog);
+
+    /* Questions */
+    QUIZ_DATA.questions.forEach(function (q, i) {
+      var block = document.createElement('div');
+      block.className = 'aq-question';
+      block.id = 'aq-block-' + q.id;
+
+      var optHtml = q.options.map(function (opt, oi) {
+        return '<div class="aq-option" id="aq-opt-' + q.id + '-' + oi + '" ' +
+               'onclick="alchQuiz._pick(\'' + q.id + '\',' + oi + ')">' +
+          '<div class="aq-marker">' + String.fromCharCode(65 + oi) + '</div>' +
+          '<div class="aq-option-text">' + escHtml(opt) + '</div>' +
+        '</div>';
+      }).join('');
+
+      block.innerHTML =
+        '<div class="aq-q-meta">' +
+          '<span>Question ' + (i + 1) + ' of ' + QUIZ_DATA.questions.length + '</span>' +
+          (q.isCore ? '<span class="aq-core-badge">✦ Core</span>' : '') +
+          '<span class="aq-weight-badge">' + q.weight + ' pt' + (q.weight > 1 ? 's' : '') + '</span>' +
+        '</div>' +
+        '<p class="aq-q-text">' + escHtml(q.text) + '</p>' +
+        '<div class="aq-options">' + optHtml + '</div>';
+
+      app.appendChild(block);
+    });
+
+    /* Submit row */
+    var sub = document.createElement('div');
+    sub.className = 'aq-submit-area';
+    sub.id = 'aq-submit-area';
+    sub.innerHTML =
+      '<span class="aq-validation-msg" id="aq-val-msg">⚠ Please answer all questions.</span>' +
+      '<button class="aq-submit-btn" onclick="alchQuiz._submit()">⚗ Submit Assessment</button>';
+    app.appendChild(sub);
+
+    updateProgressBar();
+  }
+
+  /* ── Selection ── */
+  function pick(qId, optIndex) {
+    if (submitted) return;
+    answers[qId] = optIndex;
+
+    /* Update visuals for this question's options */
+    QUIZ_DATA.questions.forEach(function (q) {
+      if (q.id !== qId) return;
+      q.options.forEach(function (_, oi) {
+        var el  = document.getElementById('aq-opt-' + q.id + '-' + oi);
+        var mrk = el && el.querySelector('.aq-marker');
+        if (!el) return;
+        el.classList.toggle('is-selected', oi === optIndex);
+        if (mrk) mrk.textContent = (oi === optIndex) ? '●' : String.fromCharCode(65 + oi);
+      });
+    });
+
+    updateProgressBar();
+  }
+
+  function updateProgressBar() {
+    var done = Object.keys(answers).length;
+    var fill = document.getElementById('aq-pfill');
+    if (fill) fill.style.width = ((done / QUIZ_DATA.questions.length) * 100) + '%';
+  }
+
+  /* ── Submit / Grade ── */
+  function submit() {
+    if (submitted) return;
+
+    /* Validate all answered */
+    var missing = QUIZ_DATA.questions.filter(function (q) { return answers[q.id] === undefined; });
+    if (missing.length > 0) {
+      missing.forEach(function (q) {
+        var block = document.getElementById('aq-block-' + q.id);
+        if (!block) return;
+        block.classList.add('is-unanswered');
+        setTimeout(function () { block.classList.remove('is-unanswered'); }, 1800);
+      });
+      var vmsg = document.getElementById('aq-val-msg');
+      if (vmsg) { vmsg.classList.add('is-visible'); setTimeout(function () { vmsg.classList.remove('is-visible'); }, 3000); }
+      /* Scroll to first unanswered */
+      var firstBlock = document.getElementById('aq-block-' + missing[0].id);
+      if (firstBlock) firstBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    submitted = true;
+
+    /* Grade */
+    var earned      = 0;
+    var coreFailures = [];
+    QUIZ_DATA.questions.forEach(function (q) {
+      var correct = (answers[q.id] === q.correctIndex);
+      if (correct) earned += q.weight;
+      if (q.isCore && !correct) coreFailures.push(q);
+    });
+
+    var pct    = earned / totalWeight;
+    var passed = pct >= QUIZ_DATA.passThreshold && coreFailures.length === 0;
+
+    /* Show answer feedback first */
+    revealAnswers();
+
+    /* Remove submit button */
+    var subArea = document.getElementById('aq-submit-area');
+    if (subArea) subArea.remove();
+
+    /* Delay result display for visual effect */
+    setTimeout(function () { showResult(passed, pct, earned, coreFailures); }, 700);
+  }
+
+  function revealAnswers() {
+    QUIZ_DATA.questions.forEach(function (q) {
+      q.options.forEach(function (_, oi) {
+        var el = document.getElementById('aq-opt-' + q.id + '-' + oi);
+        if (!el) return;
+        el.classList.add('is-locked');
+        if (oi === q.correctIndex)                         el.classList.add('is-correct');
+        if (answers[q.id] === oi && oi !== q.correctIndex) el.classList.add('is-wrong');
+        /* Update marker */
+        var mrk = el.querySelector('.aq-marker');
+        if (mrk) {
+          if (oi === q.correctIndex)  mrk.textContent = '✓';
+          else if (answers[q.id] === oi) mrk.textContent = '✗';
+          else mrk.textContent = String.fromCharCode(65 + oi);
+        }
+      });
+    });
+  }
+
+  function showResult(passed, pct, earned, coreFailures) {
+    var pctDisp = Math.round(pct * 100);
+    var result  = document.createElement('div');
+    result.className = 'aq-result ' + (passed ? 'aq-result--pass' : 'aq-result--fail');
+
+    if (passed) {
+      result.innerHTML =
+        '<div class="aq-result-icon">⚗</div>' +
+        '<h3 class="aq-result-title">Transmutation Complete</h3>' +
+        '<div class="aq-result-score">' + pctDisp + '%</div>' +
+        '<p class="aq-result-msg">You have demonstrated the understanding required to advance. ' +
+        'The next stage of your alchemical journey now awaits.</p>' +
+        '<div class="aq-code-box">' +
+          '<div class="aq-code-label">Unlock Code</div>' +
+          '<div class="aq-code-value">' + escHtml(QUIZ_DATA.passCode) + '</div>' +
+        '</div>' +
+        '<p style="font-size:0.72rem;color:#9A9080;margin:0 0 1.5rem;letter-spacing:0.04em;">' +
+        'Enter this code in the next module to unlock your next stage.</p>' +
+        '<button class="aq-retry-btn" onclick="alchQuiz._reset()">Retake for Mastery</button>';
+
+      /* Trigger roadmap unlock if present on same page */
+      if (window.alchRoadmap && typeof window.alchRoadmap.completeLevel === 'function') {
+        window.alchRoadmap.completeLevel(QUIZ_DATA.levelId);
+      }
+
+      /* Fire webhook */
+      if (QUIZ_DATA.webhookUrl) {
+        fetch(QUIZ_DATA.webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event:        'assessment_passed',
+            code:         QUIZ_DATA.passCode,
+            scorePercent: pctDisp,
+            earnedPts:    earned,
+            totalPts:     totalWeight,
+            levelId:      QUIZ_DATA.levelId,
+            answers:      answers
+          })
+        }).catch(function () {});
+      }
+
+    } else {
+      var coreMsg = '';
+      if (coreFailures.length > 0) {
+        coreMsg =
+          '<div class="aq-core-fail-note">⚠&nbsp; ' +
+          'Core question' + (coreFailures.length > 1 ? 's were' : ' was') +
+          ' answered incorrectly. Core knowledge must be fully understood before you may advance.' +
+          '</div>';
+      }
+      result.innerHTML =
+        '<div class="aq-result-icon">🜃</div>' +
+        '<h3 class="aq-result-title">Continue Your Study</h3>' +
+        '<div class="aq-result-score">' + pctDisp + '%</div>' +
+        '<p class="aq-result-msg">A score of ' +
+        Math.round(QUIZ_DATA.passThreshold * 100) + '% or higher is required, ' +
+        'with all core principles correctly understood. Review the highlighted answers above and return when ready.</p>' +
+        coreMsg +
+        '<button class="aq-submit-btn" onclick="alchQuiz._reset()" style="margin-top:0.5rem;">⚗ Retake Assessment</button>';
+    }
+
+    app.appendChild(result);
+    setTimeout(function () { result.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+  }
+
+  /* ── Reset ── */
+  function reset() {
+    buildQuiz();
+    var wrap = document.getElementById('alch-quiz-wrap');
+    if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ── Utility ── */
+  function escHtml(str) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(str));
+    return d.innerHTML;
+  }
+
+  /* Public API */
+  window.alchQuiz = {
+    _pick:   pick,
+    _submit: submit,
+    _reset:  reset
+  };
+
+  buildQuiz();
+})();
+</script>

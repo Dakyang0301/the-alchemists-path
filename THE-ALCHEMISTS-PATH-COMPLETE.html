@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Alchemist's Path — Complete Component Suite</title>
+
+<!-- ═══════════════════════════════════════════════════════
+     FONTS + TAILWIND
+═══════════════════════════════════════════════════════ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: '#D4AF37', 'gold-light': '#F0D060', 'gold-dim': '#8B6914',
+          charcoal: '#0D0D0D', velvet: '#1A1A2E', surface: '#16213E',
+          'alch-green': '#2E5339', 'alch-blue': '#4DA6FF',
+          'alch-orange': '#E8743B', 'alch-teal': '#3BBFBF',
+        },
+        fontFamily: {
+          spectral: ['Spectral', 'Georgia', 'serif'],
+          inter: ['Inter', 'system-ui', 'sans-serif'],
+        },
+      }
+    }
+  }
+</script>
+
+<style>
+/* ═══════════════════════════════════════════════════════
+   BRAND TOKENS
+═══════════════════════════════════════════════════════ */
+:root {
+  --gold: #D4AF37; --gold-light: #F0D060; --gold-dim: #8B6914;
+  --charcoal: #0D0D0D; --velvet: #1A1A2E; --surface: #16213E;
+  --surface-2: #1E2A45; --text-main: #E8E4D8; --text-muted: #9A9080;
+  --green: #2E5339; --blue: #4DA6FF; --orange: #E8743B; --teal: #3BBFBF;
+  --border-gold: 1px solid rgba(212,175,55,0.28);
+  --radius-card: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GLOBAL BASE
+═══════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--charcoal);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'Spectral', Georgia, serif;
+  color: var(--gold);
+  letter-spacing: 0.025em;
+}
+a { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════════ */
+@keyframes goldPulse {
+  0%,100% { box-shadow: 0 0 8px rgba(212,175,55,.2),0 0 20px rgba(212,175,55,.05); }
+  50%      { box-shadow: 0 0 24px rgba(212,175,55,.55),0 0 60px rgba(212,175,55,.15); }
+}
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(22px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes alchUnlock {
+  0%   { filter:grayscale(1) brightness(.35); opacity:.2; transform:scale(.96) translateX(-6px); }
+  55%  { filter:grayscale(0) brightness(1.4);              transform:scale(1.03) translateX(0); }
+  100% { filter:grayscale(0) brightness(1); opacity:1;    transform:scale(1)   translateX(0); }
+}
+@keyframes rmCardPulse {
+  0%,100% { box-shadow:0 0 0 0 transparent; }
+  50%      { box-shadow:0 0 22px rgba(212,175,55,.18); }
+}
+@keyframes rmNodePulse {
+  0%,100% { transform:scale(1); }
+  50%      { transform:scale(1.09); }
+}
+@keyframes aqFadeIn {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes aqShake {
+  0%,100% { transform:translateX(0); }
+  20%      { transform:translateX(-5px); }
+  60%      { transform:translateX(5px); }
+}
+@keyframes shimmerGold {
+  0%   { background-position:-200% center; }
+  100% { background-position:200% center; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PAGE NAV (preview only — not needed in System.io)
+═══════════════════════════════════════════════════════ */
+.preview-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,13,13,.95);
+  border-bottom: 1px solid rgba(212,175,55,.2);
+  padding: .75rem 2rem;
+  display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;
+  backdrop-filter: blur(8px);
+}
+.preview-nav span {
+  font-size: .6rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold); font-family: 'Spectral', serif; font-weight: 600;
+}
+.preview-nav a {
+  font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-muted); text-decoration: none; transition: color .2s;
+}
+.preview-nav a:hover { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION WRAPPERS
+═══════════════════════════════════════════════════════ */
+.preview-section {
+  border-top: 1px solid rgba(212,175,55,.12);
+  padding: 4rem 1.5rem 5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.preview-section-label {
+  font-size: .6rem; letter-spacing: .28em; text-transform: uppercase;
+  color: rgba(212,175,55,.4); text-align: center; margin-bottom: 3rem;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ① GLOBAL STYLES — QUOTE + FOOTER
+═══════════════════════════════════════════════════════ */
+.alch-quote-block {
+  max-width: 780px; margin: 0 auto;
+  padding: 2.5rem 2.75rem 2.5rem 3.75rem;
+  background: linear-gradient(135deg,rgba(26,26,46,.97),rgba(22,33,62,.97));
+  border-left: 3px solid var(--gold);
+  border-right: 1px solid rgba(212,175,55,.18);
+  border-top: 1px solid rgba(212,175,55,.12);
+  border-bottom: 1px solid rgba(212,175,55,.12);
+  border-radius: 0 10px 10px 0;
+  position: relative;
+  animation: goldPulse 5s ease-in-out infinite;
+}
+.alch-quote-block::before {
+  content: '\201C';
+  font-family: 'Spectral', serif; font-size: 7rem; line-height: .8;
+  color: rgba(212,175,55,.15);
+  position: absolute; top: 1.2rem; left: .9rem;
+  pointer-events: none;
+}
+.alch-quote-block p.quote-text {
+  font-family: 'Spectral', serif !important; font-style: italic;
+  font-size: 1.08rem; line-height: 2.05; color: #E8E4D8; margin: 0 0 1.35rem;
+}
+.alch-quote-block p.quote-attr {
+  font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--gold); font-style: normal; margin: 0;
+}
+.alch-global-footer {
+  background: var(--charcoal);
+  border-top: 1px solid rgba(212,175,55,.16);
+  padding: 2.25rem 1rem; text-align: center;
+  font-size: .68rem; letter-spacing: .18em; color: #9A9080; text-transform: uppercase;
+}
+.alch-global-footer .brand-name { color: var(--gold); font-weight: 600; }
+.alch-global-footer .edition    { color: rgba(212,175,55,.45); font-style: italic; text-transform: none; letter-spacing: .1em; }
+
+/* ═══════════════════════════════════════════════════════
+   ② ROADMAP
+═══════════════════════════════════════════════════════ */
+#alch-roadmap { max-width: 800px; margin: 0 auto; padding: 0 0 3rem; }
+.rm-header { text-align: center; margin-bottom: 3rem; }
+.rm-header h2 { font-size: clamp(1.7rem,4vw,2.4rem); margin: 0 0 .5rem; }
+.rm-header p  { color: #9A9080; font-size: .875rem; margin: 0; }
+.rm-progress-wrap {
+  display: flex; justify-content: space-between;
+  font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: #9A9080;
+  margin-bottom: .4rem;
+}
+.rm-progress-track {
+  background: rgba(255,255,255,.07); border-radius: 20px;
+  height: 5px; margin-bottom: 2.5rem; overflow: hidden;
+}
+.rm-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg,#2E5339,#D4AF37,#3BBFBF);
+  border-radius: 20px;
+  transition: width .9s cubic-bezier(.34,1,.64,1);
+}
+.rm-track { position: relative; }
+.rm-track::before {
+  content: ''; position: absolute; left: 29px; top: 30px; bottom: 30px; width: 2px;
+  background: linear-gradient(to bottom,rgba(212,175,55,.08),rgba(212,175,55,.45),rgba(212,175,55,.08));
+  pointer-events: none;
+}
+.rm-step { display: flex; gap: 1.25rem; margin-bottom: 1.5rem; position: relative; }
+.rm-node {
+  flex-shrink: 0; width: 60px; height: 60px; border-radius: 50%; border: 2px solid;
+  display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  position: relative; z-index: 1;
+  transition: all .5s cubic-bezier(.34,1.56,.64,1);
+}
+.rm-card {
+  flex: 1;
+  background: linear-gradient(145deg,#1A1A2E,#16213E);
+  border: 1px solid rgba(212,175,55,.22); border-radius: 11px;
+  padding: 1.35rem 1.6rem; position: relative; overflow: hidden;
+  transition: border-color .35s, box-shadow .35s;
+}
+.rm-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg,transparent,var(--step-c,#D4AF37),transparent);
+  opacity: .45;
+}
+.rm-meta { display: flex; align-items: baseline; flex-wrap: wrap; gap: .6rem; margin-bottom: .45rem; }
+.rm-metal { font-family: 'Spectral', serif; font-size: 1.15rem; font-weight: 600; color: var(--step-c,#D4AF37); }
+.rm-state { font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: #9A9080; }
+.rm-element-badge {
+  margin-left: auto; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  color: var(--step-c,#D4AF37); padding: .15rem .6rem; border-radius: 20px; white-space: nowrap;
+}
+.rm-desc { font-size: .84rem; line-height: 1.68; color: #C0B8A8; margin: 0 0 1rem; }
+.rm-status-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+.rm-status { display: flex; align-items: center; gap: .45rem; font-size: .72rem; color: #9A9080; }
+.rm-status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.rm-complete-btn {
+  background: var(--step-c,#D4AF37); color: #0D0D0D;
+  font-weight: 700; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+  padding: .55rem 1.4rem; border: none; border-radius: 4px; cursor: pointer;
+  transition: opacity .2s, transform .2s;
+}
+.rm-complete-btn:hover { opacity: .88; transform: translateY(-1px); }
+/* locked */
+.rm-step--locked .rm-card { border-color: rgba(255,255,255,.06); filter: saturate(.25); }
+.rm-step--locked .rm-card::before { opacity: 0; }
+.rm-step--locked .rm-node { filter: grayscale(1); opacity: .35; background: rgba(30,30,40,.8) !important; border-color: rgba(255,255,255,.12) !important; }
+.rm-step--locked .rm-metal { color: #555 !important; }
+.rm-step--locked .rm-desc  { color: #444 !important; }
+/* active */
+.rm-step--active .rm-card { border-color: rgba(212,175,55,.45); animation: rmCardPulse 3.5s ease-in-out infinite; }
+.rm-step--active .rm-node { animation: rmNodePulse 2.5s ease-in-out infinite; }
+/* completed */
+.rm-step--completed .rm-node::after {
+  content: '✓'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(5,15,5,.65); border-radius: 50%;
+  font-size: 1rem; color: #D4AF37; font-family: 'Inter', sans-serif; font-weight: 700;
+}
+.rm-step--completed .rm-card { border-color: rgba(46,83,57,.5); }
+.rm-step--unlocking { animation: alchUnlock .85s cubic-bezier(.22,1,.36,1) forwards; }
+/* dev panel */
+.rm-dev-panel { margin-top: 3rem; padding: 1rem 1.25rem; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; font-size: .72rem; color: #9A9080; }
+.rm-dev-panel strong { display: block; color: #D4AF37; margin-bottom: .6rem; letter-spacing: .1em; text-transform: uppercase; }
+.rm-dev-btn { background: rgba(255,255,255,.07); color: #C8C0B0; border: 1px solid rgba(255,255,255,.12); padding: .35rem 1rem; border-radius: 4px; cursor: pointer; font-size: .72rem; margin-right: .5rem; margin-bottom: .25rem; transition: background .2s; }
+.rm-dev-btn:hover { background: rgba(255,255,255,.12); }
+
+/* ═══════════════════════════════════════════════════════
+   ③ ASSESSMENT ENGINE
+═══════════════════════════════════════════════════════ */
+#alch-quiz-wrap { max-width: 740px; margin: 0 auto; padding: 0 0 3rem; }
+.aq-header { text-align: center; margin-bottom: 2.5rem; }
+.aq-header h2 { font-size: clamp(1.5rem,3.5vw,2rem); margin: 0 0 .5rem; }
+.aq-header p  { color: #9A9080; font-size: .85rem; line-height: 1.6; margin: 0; }
+.aq-progress-row { display: flex; justify-content: space-between; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: #9A9080; margin-bottom: .4rem; }
+.aq-progress-track { height: 4px; background: rgba(255,255,255,.07); border-radius: 20px; margin-bottom: 2rem; overflow: hidden; }
+.aq-progress-fill { height: 100%; background: linear-gradient(90deg,#D4AF37,#F0D060); border-radius: 20px; transition: width .4s ease; }
+.aq-question {
+  background: linear-gradient(145deg,#1A1A2E,#16213E);
+  border: 1px solid rgba(212,175,55,.22); border-radius: 12px;
+  padding: 1.75rem; margin-bottom: 1.25rem;
+  position: relative; overflow: hidden;
+  animation: aqFadeIn .35s ease forwards; transition: border-color .3s;
+}
+.aq-question::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg,transparent,rgba(212,175,55,.4),transparent); }
+.aq-question.is-unanswered { border-color: rgba(200,60,60,.6); animation: aqShake .35s ease; }
+.aq-q-meta { display: flex; align-items: center; gap: .6rem; font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: #9A9080; margin-bottom: .8rem; flex-wrap: wrap; }
+.aq-core-badge { background: rgba(212,175,55,.12); border: 1px solid rgba(212,175,55,.3); color: #D4AF37; padding: .12rem .5rem; border-radius: 3px; font-size: .6rem; letter-spacing: .1em; }
+.aq-weight-badge { color: rgba(212,175,55,.55); margin-left: auto; }
+.aq-q-text { font-family: 'Spectral', serif; font-size: 1.03rem; color: #E8E4D8; line-height: 1.7; margin: 0 0 1.4rem; }
+.aq-options { display: grid; gap: .65rem; }
+.aq-option { display: flex; align-items: flex-start; gap: .8rem; padding: .85rem 1rem; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.07); border-radius: 8px; cursor: pointer; transition: background .18s, border-color .18s; user-select: none; }
+.aq-option:hover { background: rgba(212,175,55,.07); border-color: rgba(212,175,55,.3); }
+.aq-option.is-selected { background: rgba(212,175,55,.1); border-color: rgba(212,175,55,.5); }
+.aq-option.is-correct  { background: rgba(46,83,57,.28) !important; border-color: rgba(46,83,57,.8) !important; cursor: default; }
+.aq-option.is-wrong    { background: rgba(180,45,45,.2) !important; border-color: rgba(180,45,45,.55) !important; cursor: default; }
+.aq-option.is-locked   { pointer-events: none; }
+.aq-marker { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(212,175,55,.3); display: flex; align-items: center; justify-content: center; font-size: .7rem; color: #9A9080; font-weight: 600; transition: all .18s; margin-top: .08rem; }
+.aq-option.is-selected .aq-marker { background: rgba(212,175,55,.18); border-color: #D4AF37; color: #D4AF37; }
+.aq-option.is-correct  .aq-marker { background: rgba(46,83,57,.6); border-color: #2E5339; color: #7FBA8A; }
+.aq-option.is-wrong    .aq-marker { background: rgba(180,45,45,.4); border-color: #B43030; color: #E07070; }
+.aq-option-text { font-size: .875rem; color: #C8C0B0; line-height: 1.55; flex: 1; }
+.aq-submit-area { display: flex; justify-content: flex-end; align-items: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+.aq-submit-btn { background: linear-gradient(135deg,#D4AF37 0%,#8B6914 50%,#D4AF37 100%); background-size: 200% auto; color: #0D0D0D; font-weight: 700; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; padding: .9rem 2.5rem; border: none; border-radius: 4px; cursor: pointer; transition: background-position .4s, transform .2s, box-shadow .3s; }
+.aq-submit-btn:hover { background-position: right center; transform: translateY(-2px); box-shadow: 0 0 28px rgba(212,175,55,.45); }
+.aq-validation-msg { font-size: .78rem; color: #C07070; display: none; }
+.aq-validation-msg.is-visible { display: flex; align-items: center; gap: .4rem; }
+.aq-result { border-radius: 16px; padding: 3rem 2rem 2.5rem; text-align: center; animation: aqFadeIn .6s ease forwards; margin-top: 2rem; }
+.aq-result--pass { background: linear-gradient(145deg,#0A1A0F,#0F2018); border: 1px solid rgba(46,83,57,.9); }
+.aq-result--fail { background: linear-gradient(145deg,#1A0D0D,#2A1010); border: 1px solid rgba(160,50,50,.5); }
+.aq-result-icon  { font-size: 3.2rem; margin-bottom: 1rem; }
+.aq-result-title { font-family: 'Spectral', serif; font-size: 1.75rem; margin: 0 0 .6rem; }
+.aq-result--pass .aq-result-title { color: #D4AF37; }
+.aq-result--fail .aq-result-title { color: #C07070; }
+.aq-result-score { font-size: 2.8rem; font-weight: 700; margin: .75rem 0; line-height: 1; }
+.aq-result--pass .aq-result-score { color: #D4AF37; }
+.aq-result--fail .aq-result-score { color: #9A9080; }
+.aq-result-msg { font-size: .88rem; color: #9A9080; line-height: 1.75; max-width: 480px; margin: 0 auto 1.5rem; }
+.aq-code-box { display: inline-block; background: rgba(212,175,55,.09); border: 1px solid rgba(212,175,55,.38); border-radius: 8px; padding: 1.25rem 2.25rem; margin: .5rem auto 1.5rem; }
+.aq-code-label { font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: #9A9080; margin-bottom: .5rem; }
+.aq-code-value { font-family: 'Courier New', monospace; font-size: 1.5rem; font-weight: 700; color: #D4AF37; letter-spacing: .18em; }
+.aq-core-fail-note { background: rgba(160,50,50,.15); border: 1px solid rgba(160,50,50,.4); border-radius: 8px; padding: .75rem 1.2rem; font-size: .82rem; color: #C07070; max-width: 480px; margin: 0 auto 1.25rem; text-align: left; display: flex; align-items: flex-start; gap: .5rem; }
+.aq-retry-btn { background: rgba(255,255,255,.06); color: #9A9080; border: 1px solid rgba(255,255,255,.12); font-weight: 600; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; padding: .8rem 2rem; border-radius: 4px; cursor: pointer; margin-top: 1rem; transition: background .2s, border-color .2s, color .2s; }
+.aq-retry-btn:hover { background: rgba(255,255,255,.1); border-color: rgba(212,175,55,.3); color: #D4AF37; }
+
+/* ═══════════════════════════════════════════════════════
+   ④ PRICING CARDS
+═══════════════════════════════════════════════════════ */
+#alch-pricing { max-width: 1080px; margin: 0 auto; padding: 0 0 3rem; }
+.ps-header { text-align: center; margin-bottom: 3.5rem; }
+.ps-header h2 { font-size: clamp(1.8rem,4vw,2.5rem); margin: 0 0 .75rem; }
+.ps-header p  { color: #9A9080; font-size: .92rem; line-height: 1.75; max-width: 540px; margin: 0 auto; }
+.ps-row-label { text-align: center; font-size: .62rem; letter-spacing: .24em; text-transform: uppercase; color: rgba(212,175,55,.5); margin: 0 0 1.25rem; display: flex; align-items: center; gap: 1rem; }
+.ps-row-label::before,.ps-row-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg,transparent,rgba(212,175,55,.2)); }
+.ps-row-label::after { transform: scaleX(-1); }
+.ps-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 1.5rem; margin-bottom: 1rem; }
+.ps-grid + .ps-row-label { margin-top: 3rem; }
+.pc { background: linear-gradient(150deg,#1A1A2E,#16213E); border: 1px solid rgba(212,175,55,.22); border-radius: 16px; padding: 2.25rem 2rem 2rem; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: border-color .3s, box-shadow .3s, transform .3s; }
+.pc::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg,transparent,rgba(212,175,55,.45),transparent); }
+.pc:hover { border-color: rgba(212,175,55,.52); box-shadow: 0 16px 48px rgba(0,0,0,.4),0 0 35px rgba(212,175,55,.1); transform: translateY(-5px); }
+.pc--featured { border-color: rgba(212,175,55,.5); box-shadow: 0 8px 40px rgba(0,0,0,.35),0 0 40px rgba(212,175,55,.1); }
+.pc-featured-badge { position: absolute; top: 0; right: 1.75rem; background: linear-gradient(135deg,#D4AF37,#8B6914); color: #0D0D0D; font-weight: 700; font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; padding: .32rem .85rem; border-radius: 0 0 8px 8px; }
+.pc-accent-stripe { position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 16px 0 0 16px; opacity: .7; }
+.pc-tag { font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: #D4AF37; margin-bottom: .7rem; }
+.pc-title { font-family: 'Spectral', serif; font-size: 1.3rem; font-weight: 600; color: #E8E4D8; line-height: 1.3; margin: 0 0 .45rem; }
+.pc-subtitle { font-size: .82rem; color: #9A9080; line-height: 1.6; margin: 0 0 1.75rem; }
+.pc-price { display: flex; align-items: baseline; gap: .2rem; margin-bottom: 1.75rem; }
+.pc-currency { font-size: 1.15rem; font-weight: 600; color: #D4AF37; align-self: flex-start; margin-top: .55rem; }
+.pc-amount { font-size: 3.25rem; font-weight: 700; color: #D4AF37; line-height: 1; letter-spacing: -.025em; }
+.pc-period { font-size: .8rem; color: #9A9080; margin-left: .15rem; align-self: flex-end; padding-bottom: .3rem; }
+.pc-divider { border: none; height: 1px; background: linear-gradient(90deg,transparent,rgba(212,175,55,.18),transparent); margin: 0 0 1.6rem; }
+.pc-features { list-style: none; padding: 0; margin: 0 0 2rem; display: flex; flex-direction: column; gap: .7rem; flex-grow: 1; }
+.pc-features li { display: flex; align-items: flex-start; gap: .65rem; font-size: .875rem; color: #C8C0B0; line-height: 1.55; }
+.pc-check { flex-shrink: 0; margin-top: .1rem; }
+.pc-cta { display: flex; flex-direction: column; gap: .65rem; }
+.pc-btn-gold { display: flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; background: linear-gradient(135deg,#D4AF37 0%,#8B6914 50%,#D4AF37 100%); background-size: 200% auto; color: #0D0D0D; font-weight: 700; font-size: .78rem; letter-spacing: .13em; text-transform: uppercase; padding: 1rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; text-decoration: none !important; transition: background-position .4s, box-shadow .3s, transform .2s; text-align: center; }
+.pc-btn-gold:hover { background-position: right center; box-shadow: 0 0 28px rgba(212,175,55,.45); transform: translateY(-1px); color: #0D0D0D; }
+.pc-btn-colored { display: flex; align-items: center; justify-content: center; gap: .4rem; width: 100%; color: #fff; font-weight: 700; font-size: .78rem; letter-spacing: .13em; text-transform: uppercase; padding: 1rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; text-decoration: none !important; background-size: 200% auto; transition: background-position .4s, box-shadow .3s, transform .2s; text-align: center; }
+.pc-btn-colored:hover { background-position: right center; transform: translateY(-1px); }
+.pc-note { display: flex; align-items: center; justify-content: center; gap: .35rem; font-size: .68rem; color: #9A9080; letter-spacing: .05em; text-align: center; }
+.checkout-embed-zone { background: rgba(212,175,55,.03); border: 1px dashed rgba(212,175,55,.22); border-radius: 8px; padding: 1rem; min-height: 56px; display: flex; align-items: center; justify-content: center; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(212,175,55,.35); gap: .4rem; }
+.pc-savings-chip { display: inline-flex; align-items: center; gap: .35rem; background: rgba(46,83,57,.25); border: 1px solid rgba(46,83,57,.6); color: #7FBA8A; font-size: .65rem; letter-spacing: .1em; padding: .25rem .7rem; border-radius: 20px; margin-bottom: 1.25rem; }
+.ps-trust-strip { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .5rem 2rem; margin-top: 3.5rem; padding: 1.5rem 2rem; background: rgba(212,175,55,.035); border: 1px solid rgba(212,175,55,.1); border-radius: 12px; }
+.ps-trust-item { display: flex; align-items: center; gap: .5rem; font-size: .72rem; color: #9A9080; white-space: nowrap; }
+.ps-trust-divider { width: 1px; height: 18px; background: rgba(212,175,55,.18); }
+@media(max-width:600px){
+  .ps-trust-divider{display:none;}
+  .pc{padding:1.75rem 1.5rem;}
+  .pc-amount{font-size:2.75rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Preview Nav (delete when copying to System.io) ── -->
+<nav class="preview-nav">
+  <span>⚗ The Alchemist's Path</span>
+  <a href="#section-quote">① Quote &amp; Footer</a>
+  <a href="#section-roadmap">② Roadmap</a>
+  <a href="#section-quiz">③ Assessment</a>
+  <a href="#section-pricing">④ Pricing</a>
+</nav>
+
+
+<!-- ════════════════════════════════════════════════════════
+     ① BRAND QUOTE + FOOTER
+     Copy everything inside this section to System.io
+════════════════════════════════════════════════════════ -->
+<div id="section-quote" class="preview-section">
+  <p class="preview-section-label">① Global Quote Block — paste anywhere on any page</p>
+
+  <div class="alch-quote-block">
+    <p class="quote-text">
+      Drink from the well, my Son, for it is refreshing.
+      Drink from the well, my Daughter, for it is a blessing.
+      Everything you are looking for is within you.
+    </p>
+    <p class="quote-attr">— An Alchemist</p>
+  </div>
+
+  <div style="margin-top:3rem;">
+    <footer class="alch-global-footer">
+      <span class="brand-name">The Alchemist's Path</span>
+      &nbsp;&nbsp;©&nbsp;2025&nbsp;&nbsp;–&nbsp;&nbsp;
+      <span class="edition">First Draft Edition</span>
+    </footer>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     ② INTERACTIVE ROADMAP
+     Copy everything inside this section to System.io
+════════════════════════════════════════════════════════ -->
+<div id="section-roadmap" class="preview-section">
+  <p class="preview-section-label">② Alchemical Roadmap — paste on Student Dashboard page</p>
+
+  <div id="alch-roadmap">
+    <div class="rm-header">
+      <h2>The Alchemical Path</h2>
+      <p>Eight stages of transformation. Complete each assessment to reveal the next.</p>
+    </div>
+    <div class="rm-progress-wrap">
+      <span id="rm-progress-text">0 of 8 Stages Complete</span>
+      <span id="rm-progress-pct">0%</span>
+    </div>
+    <div class="rm-progress-track">
+      <div class="rm-progress-fill" id="rm-fill" style="width:0%"></div>
+    </div>
+    <div class="rm-track" id="rm-track"></div>
+    <!-- DEV CONTROLS — DELETE before going live -->
+    <div class="rm-dev-panel" id="rm-dev">
+      <strong>Dev Controls — Remove Before Launch</strong>
+      <button class="rm-dev-btn" onclick="alchRoadmap.resetAll()">Reset Progress</button>
+      <button class="rm-dev-btn" onclick="alchRoadmap.completeLevel(0)">Complete Stage 1</button>
+      <button class="rm-dev-btn" onclick="alchRoadmap.devUnlockAll()">Unlock All (Test)</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     ③ WEIGHTED ASSESSMENT ENGINE
+     Copy everything inside this section to System.io
+════════════════════════════════════════════════════════ -->
+<div id="section-quiz" class="preview-section">
+  <p class="preview-section-label">③ Assessment Engine — paste on each Lesson page</p>
+
+  <div id="alch-quiz-wrap">
+    <div class="aq-header">
+      <h2 id="aq-title">Level Assessment</h2>
+      <p>Answer every question. Core questions (marked <strong style="color:#D4AF37;">✦ Core</strong>) must be correct to pass.<br>Passing score: <strong style="color:#D4AF37;">80%</strong></p>
+    </div>
+    <div id="aq-app"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     ④ PRICING CARDS
+     Copy everything inside this section to System.io
+════════════════════════════════════════════════════════ -->
+<div id="section-pricing" class="preview-section">
+  <p class="preview-section-label">④ Pricing Cards — paste on Pricing / Order page</p>
+
+  <section id="alch-pricing">
+    <div class="ps-header">
+      <h2>Choose Your Path</h2>
+      <p>Every tier has been priced as an act of service. Your investment in yourself is the only prerequisite.</p>
+    </div>
+
+    <div class="ps-row-label">Monthly Membership Plans</div>
+    <div class="ps-grid">
+
+      <!-- Card 1: Full Membership €5.55/mo -->
+      <div class="pc pc--featured">
+        <div class="pc-featured-badge">Most Complete</div>
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#D4AF37,#8B6914);"></div>
+        <p class="pc-tag">Full Alchemy Membership</p>
+        <h3 class="pc-title">The Codex of Transformation</h3>
+        <p class="pc-subtitle">Complete access to the entire alchemical curriculum — every video, module, and assessment.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">5.55</span><span class="pc-period">/ month</span>
+        </div>
+        <span class="pc-savings-chip">✦ Best value for the full journey</span>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> 60 HD Video Lessons across all 8 stages</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> 60 Modules &amp; in-depth Articles</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> 12 Weighted Assessments with unlock codes</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> Full Alchemical Roadmap dashboard</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> New content added each month</li>
+          <li><span class="pc-check" style="color:#D4AF37;">⚗</span> Cancel any time — no lock-in</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-gold">Begin Transmutation →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 Secure payment &nbsp;·&nbsp; Cancel anytime</p>
+        </div>
+      </div>
+
+      <!-- Card 2: E-Learn €3.95/mo -->
+      <div class="pc">
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#4DA6FF,#1a5fa8);"></div>
+        <p class="pc-tag">Entry Access</p>
+        <h3 class="pc-title">E-Learn Subscription</h3>
+        <p class="pc-subtitle">Begin your journey with curated foundational lessons, guided articles, and entry-level reflections.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">3.95</span><span class="pc-period">/ month</span>
+        </div>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Foundational lessons: Tin → Iron (stages 1–3)</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Monthly article &amp; reading library</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Guided journalling &amp; reflection exercises</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Entry-level stage assessments</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Upgrade to Full Membership anytime</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Cancel any time — no lock-in</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-colored" style="background:linear-gradient(135deg,#4DA6FF 0%,#1a5fa8 50%,#4DA6FF 100%);background-size:200% auto;">Start Learning →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 Secure payment &nbsp;·&nbsp; Cancel anytime</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ps-row-label">Individual Course Bundles — One-Time Purchase</div>
+    <div class="ps-grid">
+
+      <!-- Card 3: Self & Time Management €5.55 -->
+      <div class="pc">
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#4DA6FF,#1a5fa8);"></div>
+        <p class="pc-tag">Course Bundle · Air · Self</p>
+        <h3 class="pc-title">Self &amp; Time Management</h3>
+        <p class="pc-subtitle">Reclaim your time, architect your days, and align every action with your truest priorities.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">5.55</span><span class="pc-period">&nbsp;one-time</span>
+        </div>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> The Alchemy of Time framework</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Daily rhythm &amp; ritual design system</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Identifying and eliminating energy leaks</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Quarterly self-review protocol</li>
+          <li><span class="pc-check" style="color:#4DA6FF;">◈</span> Lifetime access · No expiry</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-colored" style="background:linear-gradient(135deg,#4DA6FF 0%,#1a5fa8 50%,#4DA6FF 100%);background-size:200% auto;">Claim This Course →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 One-time payment &nbsp;·&nbsp; Lifetime access</p>
+        </div>
+      </div>
+
+      <!-- Card 4: Financial Independence €19.99 -->
+      <div class="pc">
+        <div class="pc-accent-stripe" style="background:linear-gradient(to bottom,#2E5339,#1a3020);"></div>
+        <p class="pc-tag">Course Bundle · Earth · Wealth</p>
+        <h3 class="pc-title">You Deserve Financial Independence</h3>
+        <p class="pc-subtitle">The complete roadmap from Lead to Gold — practical alchemy for building real, lasting financial freedom.</p>
+        <div class="pc-price">
+          <span class="pc-currency">€</span><span class="pc-amount">19.99</span><span class="pc-period">&nbsp;one-time</span>
+        </div>
+        <hr class="pc-divider">
+        <ul class="pc-features">
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Iron → Silver wealth-building path (stages 3–6)</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Income streams, assets &amp; freedom mechanics</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Dissolving inherited financial belief patterns</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> The Sovereignty Blueprint workbook (PDF)</li>
+          <li><span class="pc-check" style="color:#2E5339;">◈</span> Lifetime access · No expiry</li>
+        </ul>
+        <div class="pc-cta">
+          <a href="#" class="pc-btn-colored" style="background:linear-gradient(135deg,#3a6e4a 0%,#1a3020 50%,#3a6e4a 100%);background-size:200% auto;color:#fff;">Begin Financial Alchemy →</a>
+          <div class="checkout-embed-zone">↑ Drop System.io Checkout Element Here</div>
+          <p class="pc-note">🔒 One-time payment &nbsp;·&nbsp; Lifetime access</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ps-trust-strip">
+      <div class="ps-trust-item"><span>🔒</span> Secure SSL Checkout</div>
+      <div class="ps-trust-divider"></div>
+      <div class="ps-trust-item"><span>♻</span> Cancel Subscriptions Anytime</div>
+      <div class="ps-trust-divider"></div>
+      <div class="ps-trust-item"><span>⚗</span> Content Curated by a Practicing Alchemist</div>
+      <div class="ps-trust-divider"></div>
+      <div class="ps-trust-item"><span>✦</span> The Alchemist's Path © 2025</div>
+    </div>
+  </section>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     JAVASCRIPT — Roadmap Engine
+════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  var STORAGE_KEY='alch_path_v1';
+  var WEBHOOK_URL='';
+  var ELEMENTS=[
+    {id:0,metal:'Tin',state:'Ignorance',elem:'Primordial',glyph:'☿',color:'#8B8FA8',bg:'rgba(139,143,168,.14)',desc:'The raw material. Unrefined ore — full of potential, blind to it. Every alchemist begins here, and that is precisely the point.'},
+    {id:1,metal:'Lead',state:'Awareness',elem:'Shadow',glyph:'♄',color:'#7A8BA0',bg:'rgba(122,139,160,.14)',desc:'The first great gift: you begin to see. Awareness is not yet wisdom — it is the candle lit in a dark room. Honour it.'},
+    {id:2,metal:'Iron',state:'Stability',elem:'Earth · Wealth',glyph:'♂',color:'#2E5339',bg:'rgba(46,83,57,.22)',desc:'Your roots go deep. You have made order from chaos — a stable foundation from which true, lasting growth becomes possible.'},
+    {id:3,metal:'Steel',state:'Security',elem:'Forged',glyph:'⚙',color:'#5A7A8C',bg:'rgba(90,122,140,.18)',desc:'Iron tempered in fire. Security is not comfort — it is the deep certainty that you can handle whatever approaches you.'},
+    {id:4,metal:'Copper',state:'Comfort',elem:'Fire · Spirit',glyph:'♀',color:'#E8743B',bg:'rgba(232,116,59,.16)',desc:'The warmth of what you have built. Comfort is a waypoint, not a destination — rest here, but do not settle forever.'},
+    {id:5,metal:'Silver',state:'Independence',elem:'Air · Self',glyph:'☽',color:'#4DA6FF',bg:'rgba(77,166,255,.14)',desc:'You breathe free air. No longer dependent on external approval or broken systems — your authentic self begins to shine.'},
+    {id:6,metal:'Gold',state:'Freedom',elem:'Water · Spirit',glyph:'☉',color:'#D4AF37',bg:'rgba(212,175,55,.16)',desc:'The Great Work, achieved. Gold is not a material state — it is a sovereign way of moving through the world with ease.'},
+    {id:7,metal:'Palladium',state:'Mastery · Giving Back',elem:'Ether',glyph:'⊕',color:'#3BBFBF',bg:'rgba(59,191,191,.14)',desc:'The highest expression: you have become the well. Mastery is not hoarding — it is the overflow that nourishes others.'}
+  ];
+  function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{completed:[],current:0};}catch(_){return{completed:[],current:0};}}
+  function save(s){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s));}catch(_){}}
+  function render(){
+    var s=load(),track=document.getElementById('rm-track'),fill=document.getElementById('rm-fill'),
+        ptxt=document.getElementById('rm-progress-text'),ppct=document.getElementById('rm-progress-pct'),
+        done=s.completed.length,pct=Math.round((done/ELEMENTS.length)*100);
+    if(fill)fill.style.width=pct+'%';
+    if(ptxt)ptxt.textContent=done+' of '+ELEMENTS.length+' Stages Complete';
+    if(ppct)ppct.textContent=pct+'%';
+    if(!track)return;
+    track.innerHTML='';
+    ELEMENTS.forEach(function(el){
+      var isC=s.completed.indexOf(el.id)!==-1,isA=el.id===s.current&&!isC,isL=!isC&&el.id>s.current;
+      var step=document.createElement('div');
+      step.className='rm-step '+(isL?'rm-step--locked':isC?'rm-step--completed':'rm-step--active');
+      step.style.setProperty('--step-c',el.color);
+      var foot='';
+      if(isC) foot='<div class="rm-status" style="color:#2E5339;"><div class="rm-status-dot" style="background:#2E5339;"></div>Transmutation Complete</div>';
+      else if(isL) foot='<div class="rm-status"><div class="rm-status-dot"></div>Complete the previous stage to unlock</div>';
+      else if(isA) foot='<div class="rm-status-row"><div class="rm-status" style="color:'+el.color+';"><div class="rm-status-dot" style="background:'+el.color+';"></div>Current Stage — In Progress</div><button class="rm-complete-btn" style="background:'+el.color+';" onclick="alchRoadmap.completeLevel('+el.id+')">⚗ Complete Assessment</button></div>';
+      step.innerHTML='<div class="rm-node" style="background:'+el.bg+';border-color:'+(isL?'rgba(255,255,255,.1)':el.color)+';">'+el.glyph+'</div><div class="rm-card"><div class="rm-meta"><span class="rm-metal">'+el.metal+'</span><span class="rm-state">'+el.state+'</span><span class="rm-element-badge">'+el.elem+'</span></div><p class="rm-desc">'+el.desc+'</p>'+foot+'</div>';
+      track.appendChild(step);
+    });
+  }
+  function completeLevel(id){
+    var s=load();
+    if(s.completed.indexOf(id)!==-1)return;
+    s.completed.push(id);s.current=id+1;save(s);render();
+    var steps=document.querySelectorAll('#rm-track .rm-step'),next=steps[id+1];
+    if(next){next.classList.add('rm-step--unlocking');setTimeout(function(){next.classList.remove('rm-step--unlocking');},900);setTimeout(function(){next.scrollIntoView({behavior:'smooth',block:'center'});},200);}
+    if(WEBHOOK_URL)fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'level_complete',levelId:id,metal:ELEMENTS[id]?ELEMENTS[id].metal:''})}).catch(function(){});
+  }
+  function resetAll(){save({completed:[],current:0});render();}
+  function devUnlockAll(){save({completed:ELEMENTS.map(function(e){return e.id;}),current:ELEMENTS.length});render();}
+  window.alchRoadmap={completeLevel:completeLevel,resetAll:resetAll,devUnlockAll:devUnlockAll};
+  render();
+})();
+</script>
+
+<!-- ════════════════════════════════════════════════════════
+     JAVASCRIPT — Assessment Engine
+════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  var QUIZ_DATA={
+    title:'The Alchemical Path — Stage Assessment',
+    levelId:0,
+    passCode:'TRANSMUTE80',
+    passThreshold:0.80,
+    webhookUrl:'',
+    questions:[
+      {id:'q1',text:'The alchemical model describes Lead as "Awareness." What does this stage most accurately represent in a student\'s transformation journey?',weight:3,isCore:true,correctIndex:1,options:['A period of financial struggle that must be endured before wealth arrives','The awakening of conscious self-observation — seeing your current patterns without judgment or excuse','The beginning of formal education and external skill acquisition','A transitional state between childhood and adult responsibility']},
+      {id:'q2',text:'The Alchemist\'s core principle states: "Everything you are looking for is within you." As a practical daily discipline, this principle asks you to:',weight:3,isCore:true,correctIndex:2,options:['Reject all mentors, teachers, and outside input as unnecessary','Meditate until clarity arrives before making any decision','Audit your inner beliefs, emotional patterns, and assumptions before seeking external solutions','Trust your feelings above all logic and analysis']},
+      {id:'q3',text:'The Copper stage is called "Comfort." Why does the Alchemist\'s framework treat comfort as a critical threshold rather than a destination?',weight:2,isCore:false,correctIndex:3,options:['Comfort indicates that you have not worked hard enough','Comfort always leads to financial recklessness','The nervous system cannot function well when comfortable','Comfort that becomes permanent creates stagnation — growth lives in the friction just beyond your current ease']},
+      {id:'q4',text:'Which alchemical element is mapped to the archetype of Earth · Wealth, representing the building of tangible, grounded foundations?',weight:2,isCore:false,correctIndex:0,options:['Iron (Stability) — structure, discipline, and the architecture of a solid life','Silver (Independence) — detachment from material systems','Gold (Freedom) — the spiritual attainment that unlocks worldly abundance','Lead (Awareness) — the heaviness of early-stage consciousness']},
+      {id:'q5',text:'Palladium — the eighth and final stage — is titled "Mastery · Giving Back." What is the precise distinction between Gold (Freedom) and Palladium?',weight:2,isCore:false,correctIndex:2,options:['Palladium represents greater accumulation of personal wealth than Gold','Palladium is a state of total withdrawal from the material world','Gold is personal sovereignty achieved; Palladium is that sovereignty consciously channelled to elevate others','Palladium means all inner work is complete and no further growth is needed']},
+      {id:'q6',text:'A student demonstrates high Awareness (Lead) but repeatedly fails to build stability (Iron). According to the framework, what is the most likely root cause?',weight:1,isCore:false,correctIndex:1,options:['They have not yet consumed enough educational content','Information without embodied action keeps one in Lead — the Iron stage requires consistent practice, not more theory','They lack the right external circumstances to progress','They need a specific mentor before they can advance']}
+    ]
+  };
+  var totalWeight=QUIZ_DATA.questions.reduce(function(s,q){return s+q.weight;},0);
+  var answers={},submitted=false;
+  var app=document.getElementById('aq-app');
+  var titleEl=document.getElementById('aq-title');
+  if(titleEl)titleEl.textContent=QUIZ_DATA.title;
+  function esc(s){var d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML;}
+  function buildQuiz(){
+    answers={};submitted=false;
+    if(!app)return;
+    app.innerHTML='';
+    var prog=document.createElement('div');
+    prog.innerHTML='<div class="aq-progress-row"><span>'+QUIZ_DATA.questions.length+' Questions</span><span>Max: '+totalWeight+' pts &nbsp;·&nbsp; Pass: '+Math.ceil(totalWeight*QUIZ_DATA.passThreshold)+' pts</span></div><div class="aq-progress-track"><div class="aq-progress-fill" id="aq-pfill" style="width:0%"></div></div>';
+    app.appendChild(prog);
+    QUIZ_DATA.questions.forEach(function(q,i){
+      var block=document.createElement('div');
+      block.className='aq-question';block.id='aq-block-'+q.id;
+      var opts=q.options.map(function(opt,oi){return '<div class="aq-option" id="aq-opt-'+q.id+'-'+oi+'" onclick="alchQuiz._pick(\''+q.id+'\','+oi+')"><div class="aq-marker">'+String.fromCharCode(65+oi)+'</div><div class="aq-option-text">'+esc(opt)+'</div></div>';}).join('');
+      block.innerHTML='<div class="aq-q-meta"><span>Question '+(i+1)+' of '+QUIZ_DATA.questions.length+'</span>'+(q.isCore?'<span class="aq-core-badge">✦ Core</span>':'')+'<span class="aq-weight-badge">'+q.weight+' pt'+(q.weight>1?'s':'')+'</span></div><p class="aq-q-text">'+esc(q.text)+'</p><div class="aq-options">'+opts+'</div>';
+      app.appendChild(block);
+    });
+    var sub=document.createElement('div');sub.className='aq-submit-area';sub.id='aq-submit-area';
+    sub.innerHTML='<span class="aq-validation-msg" id="aq-val-msg">⚠ Please answer all questions.</span><button class="aq-submit-btn" onclick="alchQuiz._submit()">⚗ Submit Assessment</button>';
+    app.appendChild(sub);
+    updateBar();
+  }
+  function pick(qId,oi){
+    if(submitted)return;
+    answers[qId]=oi;
+    QUIZ_DATA.questions.forEach(function(q){
+      if(q.id!==qId)return;
+      q.options.forEach(function(_,i){
+        var el=document.getElementById('aq-opt-'+q.id+'-'+i),mrk=el&&el.querySelector('.aq-marker');
+        if(!el)return;
+        el.classList.toggle('is-selected',i===oi);
+        if(mrk)mrk.textContent=(i===oi)?'●':String.fromCharCode(65+i);
+      });
+    });
+    updateBar();
+  }
+  function updateBar(){var done=Object.keys(answers).length,fill=document.getElementById('aq-pfill');if(fill)fill.style.width=((done/QUIZ_DATA.questions.length)*100)+'%';}
+  function submit(){
+    if(submitted)return;
+    var missing=QUIZ_DATA.questions.filter(function(q){return answers[q.id]===undefined;});
+    if(missing.length>0){
+      missing.forEach(function(q){var b=document.getElementById('aq-block-'+q.id);if(b){b.classList.add('is-unanswered');setTimeout(function(){b.classList.remove('is-unanswered');},1800);}});
+      var vm=document.getElementById('aq-val-msg');if(vm){vm.classList.add('is-visible');setTimeout(function(){vm.classList.remove('is-visible');},3000);}
+      var fb=document.getElementById('aq-block-'+missing[0].id);if(fb)fb.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    submitted=true;
+    var earned=0,coreF=[];
+    QUIZ_DATA.questions.forEach(function(q){var ok=(answers[q.id]===q.correctIndex);if(ok)earned+=q.weight;if(q.isCore&&!ok)coreF.push(q);});
+    var pct=earned/totalWeight,passed=pct>=QUIZ_DATA.passThreshold&&coreF.length===0;
+    QUIZ_DATA.questions.forEach(function(q){q.options.forEach(function(_,oi){var el=document.getElementById('aq-opt-'+q.id+'-'+oi);if(!el)return;el.classList.add('is-locked');if(oi===q.correctIndex)el.classList.add('is-correct');if(answers[q.id]===oi&&oi!==q.correctIndex)el.classList.add('is-wrong');var mrk=el.querySelector('.aq-marker');if(mrk)mrk.textContent=oi===q.correctIndex?'✓':answers[q.id]===oi?'✗':String.fromCharCode(65+oi);});});
+    var sa=document.getElementById('aq-submit-area');if(sa)sa.remove();
+    setTimeout(function(){showResult(passed,pct,earned,coreF);},700);
+  }
+  function showResult(passed,pct,earned,coreF){
+    var pctD=Math.round(pct*100),r=document.createElement('div');
+    r.className='aq-result '+(passed?'aq-result--pass':'aq-result--fail');
+    if(passed){
+      r.innerHTML='<div class="aq-result-icon">⚗</div><h3 class="aq-result-title">Transmutation Complete</h3><div class="aq-result-score">'+pctD+'%</div><p class="aq-result-msg">You have demonstrated the understanding required to advance. The next stage of your alchemical journey now awaits.</p><div class="aq-code-box"><div class="aq-code-label">Unlock Code</div><div class="aq-code-value">'+esc(QUIZ_DATA.passCode)+'</div></div><p style="font-size:.72rem;color:#9A9080;margin:0 0 1.5rem;">Enter this code in the next module to unlock your next stage.</p><button class="aq-retry-btn" onclick="alchQuiz._reset()">Retake for Mastery</button>';
+      if(window.alchRoadmap&&typeof window.alchRoadmap.completeLevel==='function')window.alchRoadmap.completeLevel(QUIZ_DATA.levelId);
+      if(QUIZ_DATA.webhookUrl)fetch(QUIZ_DATA.webhookUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'assessment_passed',code:QUIZ_DATA.passCode,scorePercent:pctD,earnedPts:earned,totalPts:totalWeight,levelId:QUIZ_DATA.levelId,answers:answers})}).catch(function(){});
+    } else {
+      var cm=coreF.length>0?'<div class="aq-core-fail-note">⚠ Core question'+(coreF.length>1?'s were':' was')+' answered incorrectly. Core knowledge must be fully understood before you may advance.</div>':'';
+      r.innerHTML='<div class="aq-result-icon">🜃</div><h3 class="aq-result-title">Continue Your Study</h3><div class="aq-result-score">'+pctD+'%</div><p class="aq-result-msg">A score of '+Math.round(QUIZ_DATA.passThreshold*100)+'% or higher is required, with all core principles correctly understood.</p>'+cm+'<button class="aq-submit-btn" onclick="alchQuiz._reset()" style="margin-top:.5rem;">⚗ Retake Assessment</button>';
+    }
+    app.appendChild(r);
+    setTimeout(function(){r.scrollIntoView({behavior:'smooth',block:'center'});},100);
+  }
+  function reset(){buildQuiz();var w=document.getElementById('alch-quiz-wrap');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});}
+  window.alchQuiz={_pick:pick,_submit:submit,_reset:reset};
+  buildQuiz();
+})();
+</script>
+
+</body>
+</html>
