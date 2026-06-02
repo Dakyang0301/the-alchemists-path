@@ -1,0 +1,75 @@
+/* ═══ THE ALCHEMISTS PATH — DARK COSMIC THEME ═══ */
+:root{
+  --bg:#07091A!important;
+  --bg2:#090D25!important;
+  --bg3:#0C1135!important;
+  --text:#E8E4D8!important;
+  --muted:#8896B0!important;
+}
+*{box-sizing:border-box;}
+body,html{background:#07091A!important;color:#E8E4D8!important;}
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(30,60,160,.65) 0%,transparent 55%),
+    radial-gradient(ellipse at 10% 70%,rgba(80,20,140,.35) 0%,transparent 40%),
+    radial-gradient(ellipse at 90% 25%,rgba(20,50,140,.35) 0%,transparent 40%),
+    radial-gradient(ellipse at 55% 95%,rgba(10,30,100,.45) 0%,transparent 45%),
+    #07091A;
+}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}
+
+/* NAV */
+.nav,.nav.scrolled{background:rgba(4,6,18,.94)!important;border-bottom-color:rgba(200,150,10,.2)!important;}
+.mobile-menu{background:#090D25!important;border-bottom-color:rgba(200,150,10,.3)!important;}
+.nav-links a:not(.nav-cta),.nav-logo-sub,.mobile-menu a:not(.nav-cta){color:#8896B0!important;}
+.nav-links a:hover,.nav-links a.active{color:#C8960A!important;}
+
+/* SECTIONS */
+.pillars-bg,.story-bg,.courses-bg,.charitable-bg,.testimonials-bg,.steps-bg,.reviews-bg,.codex-bg,.contact-bg{background:#090D25!important;}
+.levels-bar-section{background:#0C1135!important;}
+
+/* CARDS */
+.pillar-card{background:linear-gradient(145deg,rgba(14,22,55,.97),rgba(7,9,26,.99))!important;border-color:rgba(200,150,10,.18)!important;}
+.pillar-card:nth-child(1){background:linear-gradient(145deg,rgba(20,40,28,.7),rgba(7,9,26,.99))!important;}
+.pillar-card:nth-child(2){background:linear-gradient(145deg,rgba(12,30,65,.6),rgba(7,9,26,.99))!important;}
+.pillar-card:nth-child(3){background:linear-gradient(145deg,rgba(50,22,16,.5),rgba(7,9,26,.99))!important;}
+.prog-card,.testi-card{background:linear-gradient(145deg,rgba(12,18,50,.95),rgba(7,9,26,.99))!important;border-color:rgba(200,150,10,.12)!important;}
+.pricing-card{background:rgba(10,14,40,.9)!important;border-color:rgba(255,255,255,.06)!important;}
+.pricing-card.featured{background:rgba(12,18,52,.97)!important;border-color:rgba(200,150,10,.38)!important;}
+.course-card{background:rgba(7,9,26,.88)!important;border-color:rgba(255,255,255,.05)!important;}
+.faq-item{background:rgba(10,14,40,.85)!important;border-color:rgba(255,255,255,.05)!important;}
+.faq-item.open{border-color:rgba(200,150,10,.25)!important;}
+.faq-question{color:#E8E4D8!important;}
+.review-card,.inside-card,.other-book,.codex-principle,.value-card,.charitable-detail{background:rgba(10,14,40,.85)!important;border-color:rgba(255,255,255,.05)!important;}
+.contact-detail,.goal-item{background:rgba(5,7,20,.55)!important;border-color:rgba(255,255,255,.05)!important;}
+
+/* FORM */
+.form-group input,.form-group textarea,.form-group select{background:rgba(10,14,40,.9)!important;border-color:rgba(200,150,10,.22)!important;color:#E8E4D8!important;}
+
+/* LEVELS */
+.levels-bar{background:#090D25!important;}
+.level-detail,.level-tab:not(.active):not(:hover){background:#090D25!important;color:#E8E4D8!important;}
+.level-tab-state{color:#8896B0!important;}
+
+/* FOOTER & MISC */
+.footer{background:transparent!important;}
+.quote-banner{background:linear-gradient(180deg,#07091A,#090D25,#07091A)!important;}
+.trust-strip{background:#090D25!important;}
+.portrait-frame{background:linear-gradient(145deg,#090D25,#0C1135)!important;}
+.coaching-card-front{background:linear-gradient(145deg,rgba(200,150,10,.09),rgba(10,14,45,.99))!important;}
+.coaching-card-back{background:rgba(10,14,40,.85)!important;}
+.emerald-tablet,.pull-quote{background:rgba(200,150,10,.05)!important;}
+.group-banner{background:linear-gradient(135deg,rgba(20,45,28,.35),rgba(10,14,45,.92),rgba(15,40,80,.2))!important;border-color:rgba(200,150,10,.18)!important;}
+
+/* PAYMENT MODAL */
+.pay-card{background:#0D1535!important;}
+.pay-input{background:#121E42!important;border-color:rgba(200,150,10,.25)!important;color:#E8E4D8!important;}
+.pay-title,.pay-desc{color:#E8E4D8!important;}
+
+/* ASSESSMENT */
+#assessApp,[class*="ax-"]{background:rgba(10,14,40,.9)!important;color:#E8E4D8!important;}
+
+/* INLINE STYLE OVERRIDES */
+[style*="background:#FFFFFF"],[style*="background: #FFFFFF"]{background:rgba(10,14,40,.7)!important;}
+div[style*="background:radial-gradient"]{background:transparent!important;}
